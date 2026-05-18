@@ -1,0 +1,11 @@
+{
+  "name": "nandan-rcm-solutions",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "razorpay": "^2.9.6"
+  },
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}

@@ -1,7 +1,31 @@
-<html><head><link rel='stylesheet' href='styles.css'><title>Enrollment</title></head><body>
-<nav><a href='index.html'>Home</a></nav><main><h1>Enrollment Form</h1>
-<form><input placeholder='Full Name' required><input placeholder='Phone Number' required>
-<input type='email' placeholder='Email Address'><select><option>Medical Billing</option><option>Medical Coding</option></select>
-<button type='submit'>Submit Enrollment</button></form>
-<h2>Payment Integration</h2><p>Replace the button below with your Razorpay checkout code.</p>
-<button>Pay Course Fee</button></main></body></html>
+<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Enrollment</title><link rel='stylesheet' href='styles.css'></head><body><nav><a href='index.html'>Home</a></nav><main><h1>Enrollment Form</h1><form><input placeholder='Full Name' required><input placeholder='Phone Number' required><input type='email' placeholder='Email Address'><select><option>Medical Billing</option><option>Medical Coding</option></select></form><h2>Course Fee Payment</h2><button id='pay-btn'>Pay Course Fee</button></main><script src='https://checkout.razorpay.com/v1/checkout.js'></script><script>
+document.getElementById('pay-btn').addEventListener('click', async function () {
+  const orderRes = await fetch('/api/create-order', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ amount: 250000, currency: 'INR' })
+  });
+  const order = await orderRes.json();
+  if (!order.order_id) { alert(order.error || 'Unable to create order'); return; }
+  const rzp = new Razorpay({
+    key: order.key,
+    amount: order.amount,
+    currency: order.currency,
+    name: 'Nandan RCM Solutions',
+    description: 'Course Enrollment Fee',
+    order_id: order.order_id,
+    handler: async function (response) {
+      const verifyRes = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(response)
+      });
+      const result = await verifyRes.json();
+      alert(result.success ? 'Payment successful and verified!' : 'Payment verification failed.');
+    },
+    modal: { ondismiss: function(){ alert('Payment cancelled.'); } }
+  });
+  rzp.on('payment.failed', function(resp){ alert('Payment failed: ' + resp.error.description); });
+  rzp.open();
+});
+</script></body></html>
