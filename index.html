@@ -1,1 +1,1135 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Nandan RCM Solutions</title><link rel='stylesheet' href='styles.css'></head><body><header><h1>Nandan RCM Solutions</h1><p>Beyond Training. Building Careers.</p></header><nav><a href='index.html'>Home</a> <a href='enrollment.html'>Enrollment</a></nav><main><h2>Your Career, Our Commitment.</h2><p>We don't just train, we build careers in US Healthcare RCM.</p><p><a class='btn' href='enrollment.html'>Enroll & Pay</a></p></main></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nandan RCM Solutions | Premium RCM Training</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & VARIABLES ===== */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#00042E;--navy2:#02091f;--blue:#00c6ff;--gold:#FAB619;
+  --white:#fff;--muted:#b8c8ea;--line:rgba(255,255,255,.14);
+  --shell-radius:34px;
+  --shell-pad:38px;
+}
+html{scroll-behavior:smooth;}
+html,body{width:100%;min-height:100%;font-family:'Poppins',Arial,sans-serif;color:#fff;background:#00042E;overflow-x:hidden;}
+
+/* ===== BACKGROUNDS ===== */
+body{
+  background:
+    radial-gradient(circle at 16% 16%,rgba(0,198,255,.22),transparent 28%),
+    radial-gradient(circle at 82% 18%,rgba(250,182,25,.16),transparent 24%),
+    linear-gradient(135deg,#00021b 0%,#00042E 48%,#04164d 100%);
+}
+body::before{
+  content:"";position:fixed;inset:-20%;
+  background:conic-gradient(from 90deg,rgba(0,198,255,.18),rgba(250,182,25,.14),rgba(255,255,255,0),rgba(0,198,255,.18));
+  animation:bgRotate 18s linear infinite;pointer-events:none;z-index:0;
+}
+@keyframes bgRotate{to{transform:rotate(360deg);}}
+body::after{
+  content:"";position:fixed;inset:0;
+  background:linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:linear-gradient(to bottom,transparent,#000 16%,#000 84%,transparent);
+  animation:gridMove 16s linear infinite;pointer-events:none;z-index:0;
+}
+@keyframes gridMove{to{transform:translateY(72px);}}
+
+.bg-orb{position:fixed;border-radius:50%;filter:blur(58px);opacity:.34;animation:floatOrb 9s ease-in-out infinite;z-index:0;pointer-events:none;}
+.bg-orb.one{width:330px;height:330px;right:8%;top:6%;background:#00c6ff;}
+.bg-orb.two{width:270px;height:270px;left:5%;bottom:7%;background:#FAB619;opacity:.18;animation-delay:-3s;}
+@keyframes floatOrb{50%{transform:translate3d(25px,-22px,0) scale(1.08);}}
+
+#bubbles-bg{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;opacity:.78;}
+
+/* ===== SCROLL PROGRESS ===== */
+#scroll-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--blue),var(--gold));z-index:999999;}
+
+/* ===== HEADER ===== */
+.header{
+  position:fixed;left:50%;top:18px;transform:translateX(-50%);
+  width:min(1240px,96vw);height:78px;z-index:9999;
+  display:flex;align-items:center;justify-content:space-between;padding:0 38px;
+  background:rgba(0,3,24,.42);backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.10);border-radius:28px;
+  box-shadow:0 18px 48px rgba(0,0,0,.28);
+}
+.brand{display:flex;align-items:center;gap:13px;font-weight:800;letter-spacing:.2px;text-decoration:none;position:relative;overflow:visible;}
+#bubbles{position:absolute;inset:-18px auto auto -18px;width:170px;height:78px;z-index:-1;pointer-events:none;opacity:.75;}
+.brand-title{background:linear-gradient(135deg,#00c6ff 0%,#ffffff 48%,#FAB619 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 24px rgba(0,198,255,.22);}
+.brand-badge{
+  width:58px;
+  height:42px;
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 0 28px rgba(0,198,255,.25);
+  overflow:hidden;
+}
+
+.brand-badge img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:0px;
+}
+.brand small{display:block;font-weight:500;color:#a7bbe2;font-size:11px;margin-top:2px;}
+.nav{display:flex;gap:8px;padding:6px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(255,255,255,.055);}
+.nav a{text-decoration:none;color:#dfeaff;font-size:12px;padding:9px 15px;border-radius:999px;transition:.25s ease;white-space:nowrap;}
+.nav a:hover,.nav a.active{background:rgba(255,255,255,.13);color:#fff;box-shadow:0 0 18px rgba(0,198,255,.16);}
+.login{text-decoration:none;color:#061330;background:linear-gradient(135deg,#ffd96b,#FAB619);padding:12px 19px;border-radius:13px;font-size:13px;font-weight:800;box-shadow:0 12px 30px rgba(250,182,25,.22);white-space:nowrap;}
+
+/* ===== PAGE SECTION & SHELL — Consistent sizing ===== */
+.page-section{
+  position:relative;z-index:1;
+  display:flex;align-items:center;justify-content:center;
+  padding:108px 20px 40px; /* top = header height + gap */
+}
+/* First section needs extra top space for fixed header */
+#home.page-section{padding-top:108px;}
+
+.shell{
+  position:relative;
+  width:min(1240px,96vw);
+height:515px;
+  border-radius:var(--shell-radius);
+  overflow:visible;
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.20);
+  box-shadow:0 35px 90px rgba(0,0,0,.55);
+}
+.shell::after{
+  content:"";position:absolute;inset:1px;border-radius:33px;
+  background:linear-gradient(120deg,rgba(255,255,255,.08),transparent 38%,rgba(0,198,255,.06));
+  pointer-events:none;
+}
+
+/* ===== HERO SECTION ===== */
+.hero{
+  position:relative;
+  display:grid;grid-template-columns:.95fr 1.05fr;
+  min-height:400px;
+  z-index:10;
+}
+.left{padding:30px 0 0px 42px;position:relative;z-index:15;}
+.badge{display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(250,182,25,.55);background:rgba(250,182,25,.08);color:#ffe08b;border-radius:999px;padding:8px 13px;font-size:11px;font-weight:800;margin-bottom:23px;box-shadow:0 0 18px rgba(250,182,25,.10);}
+.badge span{width:8px;height:8px;background:#00c6ff;border-radius:50%;box-shadow:0 0 18px #00c6ff;animation:blink 1.4s ease-in-out infinite;}
+@keyframes blink{50%{opacity:.35;transform:scale(.72);}}
+
+h1{font-size:clamp(38px,4.5vw,62px);line-height:.95;letter-spacing:-2.5px;font-weight:800;max-width:760px;text-shadow:0 18px 45px rgba(0,0,0,.45);}
+h1 .skill{background:linear-gradient(180deg,#eefcff 0%,#bdeeff 48%,#9ed6e7 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+h1 .today{background:linear-gradient(180deg,#78e7ff 0%,#20c7ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+h1 .lead{display:inline-block;margin-top:10px;background:linear-gradient(180deg,#ffd86d 0%,#FAB619 48%,#f6a400 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.desc{max-width:590px;margin:26px 0 27px;color:#c3d3f5;font-size:15px;line-height:1.65;font-weight:500;}
+.ctas{display:flex;align-items:center;gap:12px;margin-bottom:30px;flex-wrap:wrap;}
+.btn{text-decoration:none;border:0;border-radius:12px;padding:14px 22px;font-size:12px;font-weight:800;color:#061330;background:linear-gradient(135deg,#24d0ff,#5d91ff);box-shadow:0 18px 38px rgba(0,198,255,.24);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+.btn.secondary{color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);box-shadow:none;}
+
+/* ===== HERO RIGHT / WORKFLOW ===== */
+.right{position:relative;overflow:hidden;perspective:1000px;}
+.workflow-area{
+  position:absolute;right:18px;top:60px;width:520px;height:380px;
+  transform:rotateX(7deg) rotateY(-8deg);transform-style:preserve-3d;
+  animation:workflowFloat 7s ease-in-out infinite;
+}
+@keyframes workflowFloat{50%{transform:rotateX(8deg) rotateY(-4deg) translateY(-12px);}}
+.workflow-card{position:absolute;right:20px;top:18px;width:400px;height:300px;border-radius:30px;padding:38px 34px 28px;background:linear-gradient(145deg,rgba(0,198,255,.18),rgba(19,31,75,.58) 50%,rgba(0,4,46,.82));border:1px solid rgba(255,255,255,.18);box-shadow:0 35px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.16);overflow:hidden;}
+.workflow-card::before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-58px;top:-54px;border:24px solid rgba(0,198,255,.20);box-shadow:0 0 70px rgba(0,198,255,.24),inset 0 0 55px rgba(250,182,25,.10);}
+.workflow-card::after{content:"";position:absolute;left:34px;right:34px;bottom:42px;height:78px;border-radius:28px;background:linear-gradient(90deg,rgba(0,198,255,.12),rgba(250,182,25,.12));filter:blur(2px);}
+.workflow-card h3{position:relative;z-index:2;font-size:22px;font-weight:800;margin-bottom:18px;color:#fff;text-shadow:0 3px 14px rgba(0,0,0,.35);}
+.workflow-card p{position:relative;z-index:2;width:340px;color:#c9d7ef;font-size:13px;line-height:1.7;font-weight:500;}
+.rcm-box{position:absolute;left:-77px;top:148px;width:205px;min-height:148px;border-radius:30px;padding:27px 23px;background:linear-gradient(145deg,rgba(0,198,255,.18),rgba(35,43,82,.85));border:1px solid rgba(255,255,255,.18);box-shadow:0 28px 60px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.15);z-index:8;animation:boxDrift 5.6s ease-in-out infinite;}
+@keyframes boxDrift{50%{transform:translateY(-14px) translateX(8px);}}
+.rcm-box h2{font-size:20px;line-height:1;background:linear-gradient(135deg,#00c6ff,#ffffff,#FAB619);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:16px;font-weight:800;}
+.rcm-box p{color:#d5def3;font-size:13px;line-height:1.55;font-weight:600;}
+.workflow-path{position:absolute;left:120px;top:200px;width:330px;height:96px;border-radius:0 0 26px 26px;background:linear-gradient(180deg,rgba(0,7,36,.48),rgba(0,4,46,.78));border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 18px 40px rgba(0,0,0,.28);z-index:4;}
+.workflow-line{position:absolute;left:135px;top:255px;width:314px;height:3px;border-radius:999px;background:linear-gradient(90deg,#00c6ff 0%,#39e9ff 18%,#FAB619 46%,#e9e968 66%,#00c6ff 100%);box-shadow:0 0 20px rgba(0,198,255,.42),0 0 18px rgba(250,182,25,.22);z-index:9;overflow:visible;}
+.workflow-line::after{content:"";position:absolute;left:0;top:-4px;width:38px;height:11px;border-radius:999px;background:rgba(255,255,255,.85);filter:blur(8px);opacity:.55;animation:lineShine 4.8s linear infinite;}
+@keyframes lineShine{0%{transform:translateX(0);opacity:.2;}35%{opacity:.65;}100%{transform:translateX(275px);opacity:.15;}}
+.step-dot{position:absolute;top:244px;width:22px;height:22px;border-radius:50%;z-index:12;background:radial-gradient(circle at 30% 25%,#fff 0 10%,#00c6ff 30%,#007dff 62%,#00c6ff 100%);box-shadow:0 0 16px #00c6ff,0 0 34px rgba(0,198,255,.62);animation:pulseDot 2.35s ease-in-out infinite,dotMove 5.5s ease-in-out infinite;}
+.step-dot.gold{background:radial-gradient(circle at 30% 25%,#fff 0 10%,#FAB619 32%,#ff9f00 64%,#FAB619 100%);box-shadow:0 0 16px #FAB619,0 0 34px rgba(250,182,25,.62);}
+.step-dot span{position:absolute;top:-38px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:800;color:#eef6ff;background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.14);padding:7px 12px;border-radius:999px;backdrop-filter:blur(14px);box-shadow:0 12px 26px rgba(0,0,0,.24);}
+.step-dot.d1{left:138px;animation-delay:0s,0s;}.step-dot.d2{left:206px;animation-delay:.35s,-.7s;}.step-dot.d3{left:276px;animation-delay:.7s,-1.4s;}.step-dot.d4{left:346px;animation-delay:1.05s,-2.1s;}.step-dot.d5{left:418px;animation-delay:1.4s,-2.8s;}
+@keyframes pulseDot{50%{filter:brightness(1.25);}}
+@keyframes dotMove{0%,100%{transform:translateY(0) scale(1);}45%{transform:translateY(-5px) scale(1.14);}70%{transform:translateY(3px) scale(.96);}}
+.orbit-particle,.mini-glow{position:absolute;border-radius:50%;background:#00c6ff;box-shadow:0 0 16px #00c6ff,0 0 30px rgba(0,198,255,.55);z-index:11;animation:freeBallMove 7s ease-in-out infinite;}
+.orbit-particle{width:9px;height:9px;}.orbit-particle.p1{left:210px;top:196px;}.orbit-particle.p2{left:514px;top:270px;background:#FAB619;box-shadow:0 0 16px #FAB619,0 0 30px rgba(250,182,25,.55);animation-delay:-2.2s;}.orbit-particle.p3{left:455px;top:118px;width:7px;height:7px;animation-delay:-4s;}
+@keyframes freeBallMove{0%,100%{transform:translate(0,0) scale(1);opacity:.8;}50%{transform:translate(24px,-18px) scale(1.35);opacity:.45;}}
+.mini-glow{opacity:.85;animation:miniFloat 5s ease-in-out infinite;}.mini-glow.g1{width:8px;height:8px;left:118px;top:82px;}.mini-glow.g2{width:7px;height:7px;right:42px;bottom:92px;background:#FAB619;box-shadow:0 0 18px #FAB619;animation-delay:-2s;}.mini-glow.g3{width:6px;height:6px;left:292px;bottom:42px;animation-delay:-3s;}
+@keyframes miniFloat{50%{transform:translate3d(20px,-18px,0) scale(1.4);opacity:.55;}}
+
+/* ===== BOTTOM FEATURES BAR ===== */
+.bottom-features{
+  position:absolute;
+  left:20px;
+  right:20px;
+  bottom:10px;
+  z-index:18;
+
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+
+  padding:10px;
+
+  border-radius:24px;
+  background:linear-gradient(
+      90deg,
+      rgba(255,255,255,.18),
+      rgba(44,88,154,.22),
+      rgba(0,198,255,.12)
+  );
+
+  border:1px solid rgba(255,255,255,.20);
+  backdrop-filter:blur(22px);
+
+  box-shadow:
+      0 22px 55px rgba(0,0,0,.38),
+      inset 0 1px 0 rgba(255,255,255,.14);
+}
+.feature-box{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:20px;background:linear-gradient(120deg,rgba(25,29,62,.86),rgba(13,31,59,.82));border:1px solid rgba(255,255,255,.10);box-shadow:0 16px 34px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.08);animation:featureMove 7s ease-in-out infinite;}
+.feature-box:nth-child(2){animation-delay:-1.5s;}.feature-box:nth-child(3){animation-delay:-3s;}.feature-box:nth-child(4){animation-delay:-4.5s;}
+@keyframes featureMove{50%{transform:translateY(-7px);}}
+.feature-icon{width:32px;height:32px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:linear-gradient(135deg,rgba(0,198,255,.28),rgba(250,182,25,.10));color:#fff;box-shadow:0 0 26px rgba(0,198,255,.22);font-size:14px;}
+.feature-text b{display:block;color:#fff;font-size:13px;font-weight:800;margin-bottom:4px;}
+.feature-text small{display:block;color:#aebfe5;font-size:10.5px;font-weight:500;}
+
+/* ===== CONTENT GRID — used by About, Course, Why, News ===== */
+.content-grid{
+  position:relative;z-index:10;
+  display:grid;grid-template-columns:.75fr 1.25fr;gap:24px;
+  padding:var(--shell-pad);
+  /* NO fixed min-height — let content dictate */
+
+
+}
+.section-title-card{
+  border-radius:30px;padding:34px;
+  background:linear-gradient(145deg,rgba(0,198,255,.16),rgba(19,31,75,.50),rgba(0,4,46,.72));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 28px 60px rgba(0,0,0,.34);
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.section-title-card::before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;right:-70px;top:-70px;border:22px solid rgba(0,198,255,.13);box-shadow:0 0 55px rgba(0,198,255,.15);}
+.kicker{position:relative;z-index:2;display:inline-flex;width:max-content;align-items:center;gap:10px;color:#ffe08b;border:1px solid rgba(250,182,25,.42);background:rgba(250,182,25,.07);border-radius:999px;padding:8px 13px;font-size:11px;font-weight:800;margin-bottom:24px;}
+.kicker::before{content:"";width:8px;height:8px;background:#00c6ff;border-radius:50%;box-shadow:0 0 18px #00c6ff;}
+.section-title-card h2{position:relative;z-index:2;font-size:clamp(24px,2.5vw,36px);line-height:1.05;letter-spacing:-1.2px;font-weight:800;background:linear-gradient(180deg,#fff,#bdeeff 48%,#FAB619 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.section-title-card p{position:relative;z-index:2;margin-top:18px;color:#c3d3f5;font-size:14px;line-height:1.75;font-weight:500;}
+.section-title-card .ctas{margin-top:26px;}
+
+/* ===== INFO CARDS ===== */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+  align-content:start;
+}
+
+/* Move About page small boxes down */
+#about .cards .info-card:not(.wide){
+  margin-top:35px;   /* increase to 25px / 35px if needed */
+}
+.info-card{
+  border-radius:24px;padding:22px;
+  background:linear-gradient(120deg,rgba(25,29,62,.86),rgba(13,31,59,.82));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 18px 42px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.08);
+  transition:.3s ease;
+}
+
+/* WHY WE page small box size control */
+#why .cards .info-card:not(.wide){
+    padding:14px;
+    min-height:140px;
+    transform:scale(1);
+    transform-origin:top center;
+}
+
+#why .cards .info-card:not(.wide) .emoji{
+    font-size:18px;
+    margin-bottom:8px;
+}
+
+#why .cards .info-card:not(.wide) h3{
+    font-size:14px;
+    margin-bottom:6px;
+}
+
+#why .cards .info-card:not(.wide) p{
+    font-size:11px;
+    line-height:1.5;
+}
+
+/* Training page small box size control */
+#course .cards .info-card:not(.wide){
+    padding:14px;
+    min-height:140px;
+    transform:scale(1);
+    transform-origin:top center;
+}
+
+#course .cards .info-card:not(.wide) .emoji{
+    font-size:18px;
+    margin-bottom:8px;
+}
+
+#course .cards .info-card:not(.wide) h3{
+    font-size:14px;
+    margin-bottom:6px;
+}
+
+#course .cards .info-card:not(.wide) p{
+    font-size:11px;
+    line-height:1.5;
+}
+
+.info-card:hover{transform:translateY(-6px);border-color:rgba(0,198,255,.35);box-shadow:0 26px 60px rgba(0,0,0,.34),0 0 24px rgba(0,198,255,.10);}
+.info-card i,.info-card .emoji{font-size:22px;color:#FAB619;margin-bottom:13px;display:inline-block;}
+.info-card h3{font-size:15px;margin-bottom:10px;color:#fff;}
+.info-card p,.info-card li{color:#b8c8ea;font-size:12.5px;line-height:1.65;font-weight:500;}
+.info-card ul{list-style:none;}
+.info-card li{padding-left:18px;position:relative;margin-bottom:7px;}
+.info-card li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--gold));box-shadow:0 0 10px rgba(0,198,255,.4);}
+.wide{grid-column:span 2;}
+.list-columns{columns:2;column-gap:28px;}
+
+/* ===== NEWS BOX ===== */
+.news-box{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-content:start;}
+.news-card{border-radius:28px;padding:30px;background:linear-gradient(145deg,rgba(0,198,255,.13),rgba(19,31,75,.56),rgba(0,4,46,.80));border:1px solid rgba(255,255,255,.14);box-shadow:0 24px 58px rgba(0,0,0,.35);}
+.news-card h3{font-size:20px;margin-bottom:14px;}
+.news-card p{color:#c3d3f5;font-size:13px;line-height:1.7;}
+.news-globe{border-radius:28px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(0,198,255,.20),rgba(0,4,46,.70) 60%,rgba(250,182,25,.08));border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 0 80px rgba(0,198,255,.08);font-size:96px;animation:featureMove 6s ease-in-out infinite;}
+
+/* SIMPLE NEXT PAGE ARROW */
+.next-arrow{
+    position:absolute;
+    bottom:5px;
+    left:50%;
+    transform:translateX(-50%);
+    text-decoration:none;
+    color:rgba(0,198,255,0.35);
+    text-shadow:0 0 8px rgba(0,198,255,0.15);
+    font-size:40px;
+    font-weight:200;
+    z-index:100;
+    animation:arrowBounce 2s infinite;
+    text-shadow:0 0 8px rgba(255,255,255,.08);
+    transition:.3s;
+}
+
+.next-arrow:hover{
+    color:rgba(250,182,25,0.8);
+}
+
+@keyframes arrowBounce{
+    0%,20%,50%,80%,100%{
+        transform:translateX(-50%) translateY(0);
+    }
+    40%{
+        transform:translateX(-50%) translateY(-8px);
+    }
+    60%{
+        transform:translateX(-50%) translateY(-4px);
+    }
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:15px;
+  z-index:50;
+  text-align:center;
+  color:rgba(255,255,255,.75);
+  font-size:12px;
+  padding:0;
+}
+.footer .icons{display:flex;gap:14px;justify-content:center;margin-bottom:12px;}
+.footer a{color:#FAB619;text-decoration:none;font-size:18px;transition:.25s;}
+.footer a:hover{color:#00c6ff;transform:translateY(-3px);display:inline-block;}
+
+#news .content-grid{
+    padding-bottom:100px;
+}
+
+/* ===== CONTACT POPUP ===== */
+.contact-popup{position:fixed;inset:0;background:rgba(0,0,0,.12);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999999;padding:24px;}
+.contact-popup.active{display:flex;}
+.contact-container{width:820px;max-width:94%;display:grid;grid-template-columns:40% 58%;border-radius:20px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.00);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 0 4px rgba(0,198,255,.18),0 0 10px rgba(0,198,255,.10),0 0 18px rgba(0,198,255,.05);}
+.contact-container::before{content:"";position:absolute;inset:0;background:rgba(1,14,41,.18);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:none;}
+.close-popup{position:absolute;top:18px;right:24px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:3rem;line-height:1;color:#FAB619;cursor:pointer;z-index:20;font-weight:200;text-shadow:0 0 16px rgba(255,255,255,.6);transition:.25s ease;}
+.close-popup:hover{transform:scale(1.08) rotate(90deg);color:#00c6ff;}
+.contact-left{position:relative;z-index:2;padding:50px 22px 24px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;}
+.contact-left::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(0,0,0,.05)),radial-gradient(circle at 28% 10%,rgba(255,255,255,.18),transparent 32%);pointer-events:none;}
+.contact-left *{position:relative;z-index:2;}
+.contact-left h1{font-size:1.8rem;font-family:"Segoe Print","Mistral",cursive;font-weight:300;margin:18px 0 14px;color:#fff;letter-spacing:1px;line-height:1;text-align:center;width:100%;}
+.contact-left h1 span{background:linear-gradient(90deg,#7fcaff,#FAB619);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.left-line{width:130px;height:1px;position:relative;background:linear-gradient(90deg,#00c6ff 0%,#00c6ff 56%,#FAB619 57%,#FAB619 100%);margin:0 auto 18px;box-shadow:0 0 12px rgba(0,198,255,.35);}
+.left-line::after{content:"";position:absolute;left:55%;top:40%;width:7px;height:7px;border-radius:50%;background:#FAB619;transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(250,182,25,.9);}
+.contact-left p{font-size:.7rem;line-height:1.55;color:#CACED4;margin:0 0 18px;font-family:"segoe print",sans-serif;}
+.contact-details{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.contact-divider{width:78%;height:1px;margin:10px auto 6px;background:rgba(255,255,255,.18);}
+.detail-box{display:flex;align-items:center;gap:10px;font-size:.92rem;color:#fff;font-family:"Tahoma",sans-serif;}
+.detail-box i{font-size:1rem;color:#FAB619;}
+.follow-title{font-size:.95rem;font-weight:200;margin:22px 0 7px;color:#fff;}
+.social-icons{display:flex;gap:12px;margin:8px 0 18px;}
+.social-icons a{text-decoration:none;display:flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:50%;font-size:.95rem;transition:transform .25s ease,box-shadow .25s ease;box-shadow:0 6px 14px rgba(0,0,0,.20);}
+.social-icons a:hover{transform:translateY(-4px) scale(1.04);}
+.social-icons a i{color:#fff;font-size:.95rem;}
+.social-wa{background:#18c85a;}.social-fb{background:#2459b8;}.social-ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%);}.social-tg{background:#229ED9;}.social-yt{background:#ff1d2d;}
+.brand-box{margin-top:10px;padding-top:20px;border-top:1px solid rgba(255,255,255,.18);width:80%;text-align:center;}
+.brand-box h2{display:inline-block;font-family:"Mistral","Segoe Print",cursive;font-size:1.7rem;font-weight:400;letter-spacing:.5px;margin:0 0 6px;background:linear-gradient(90deg,#00c6ff 0%,#00c6ff 38%,#FAB619 39%,#FAB619 62%,#fff 63%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.brand-box p{font-size:.7rem;line-height:1.35;color:#CACED4;margin:0;font-family:"segoe print",sans-serif;}
+.contact-right{position:relative;z-index:3;align-self:center;margin:16px;padding:20px;background:rgba(255,255,255,.90);border-radius:16px;box-shadow:0 20px 45px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.8);}
+.contact-right h2{font-size:1.55rem;color:#091936;margin:0 0 4px;font-weight:550;letter-spacing:.5px;font-family:"Montserrat",sans-serif;}
+.contact-right h2 span{color:#006dff;}
+.contact-right h3{font-size:1.6rem;font-family:"Mistral",cursive;font-weight:300;margin:0 0 24px;color:#111;line-height:1.3;position:relative;}
+.contact-right h3::after{content:"";position:absolute;left:0;right:34%;bottom:-12px;height:2px;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,198,255,.28),rgba(0,0,0,.03));}
+.contact-right h3::before{content:"";position:absolute;left:33%;bottom:-12px;width:7px;height:7px;border-radius:50%;background:#FAB619;box-shadow:0 0 0 2px rgba(0,198,255,.45);z-index:2;}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.input-box{position:relative;margin-bottom:18px;}
+.input-box i{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:#000;z-index:2;}
+.input-box input,.input-box textarea{width:100%;border-radius:8px;border:1px solid #d3d7de;background:rgba(255,255,255,.62);color:#08142E;font-size:1rem;outline:none;transition:.25s ease;}
+.input-box input{height:44px;padding:0 16px 0 48px;}
+.input-box textarea{height:90px;padding:16px 16px 14px 48px;resize:none;}
+.input-box input::placeholder,.input-box textarea::placeholder{color:#8a93a3;opacity:1;}
+.input-box input:focus,.input-box textarea:focus{border-color:#0072ff;background:#fff;box-shadow:0 0 0 3px rgba(0,114,255,.10);}
+.textarea-box i{top:28px;transform:none;}
+.send-btn{width:100%;height:46px;margin-top:12px;border:none;border-radius:12px;background:linear-gradient(90deg,#00c6ff,#00023D);color:#fff;font-size:.92rem;font-family:"Tahoma",sans-serif;letter-spacing:.4px;cursor:pointer;transition:all .25s ease;box-shadow:0 0 10px rgba(0,198,255,.25),0 0 20px rgba(0,198,255,.10);}
+.send-btn:hover{transform:translateY(-2px);box-shadow:0 16px 32px rgba(0,76,216,.42);}
+
+/* ===== AI BOT BUTTON - OLD VERSION ===== */
+.ai-bot-btn{
+  position:fixed;
+  right:45px;
+  bottom:45px;
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:9999;
+  color:#ffffff;
+  font-size:1.5rem;
+  box-shadow:0 0 14px rgba(0,198,255,0.35),0 0 28px rgba(0,198,255,0.18);
+  transition:all 0.3s ease;
+}
+.ai-bot-btn:hover{transform:translateY(-4px) scale(1.05);}
+
+/* ===== AI PANEL - OLD VERSION ===== */
+.ai-panel{
+  position:fixed;
+  right:20px;
+  bottom:85px;
+  width:300px;
+  height:400px;
+  background:rgba(0,15,35,0.7);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border-radius:18px;
+  border:1px solid rgba(0,198,255,0.1);
+  box-shadow:0 0 18px rgba(0,198,255,0.12);
+  overflow:hidden;
+  z-index:9999;
+  display:none;
+  flex-direction:column;
+}
+.ai-panel.active{display:flex;}
+.ai-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.ai-title{display:flex;align-items:center;gap:10px;color:#ffffff;font-family:"Poppins",sans-serif;font-weight:600;}
+.ai-close{color:#ffffff;cursor:pointer;font-size:1rem;}
+.ai-chat-box{flex:1;padding:14px;overflow-y:auto;font-family:"Poppins",sans-serif;font-size:0.85rem;}
+.bot-msg,.user-msg{padding:10px 12px;border-radius:12px;margin-bottom:10px;line-height:1.6;}
+.bot-msg{background:rgba(255,255,255,0.08);color:#dbeafe;margin-right:24px;}
+.user-msg{background:rgba(0,198,255,0.18);color:#ffffff;margin-left:24px;}
+.ai-quick-actions{display:flex;gap:10px;padding:0 14px 14px 14px;}
+.ai-quick-actions a{flex:1;height:34px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 8px;border-radius:10px;text-decoration:none;color:#ffffff;font-size:0.72rem;font-family:"Poppins",sans-serif;}
+.ai-quick-actions a i{font-size:0.72rem;margin-right:0;}
+.ai-quick-actions a:first-child{background:#229ED9;}
+.ai-quick-actions a:last-child{background:#25D366;}
+.ai-input-area{display:flex;gap:10px;padding:14px;border-top:1px solid rgba(255,255,255,0.08);}
+.ai-input-area input{flex:1;height:46px;border:none;outline:none;border-radius:14px;padding:0 14px;font-family:"Poppins",sans-serif;color:#ffffff;-webkit-text-fill-color:#ffffff;background:rgba(255,255,255,0.08);}
+.ai-input-area button{width:46px;border:none;border-radius:14px;background:#00c6ff;color:#ffffff;cursor:pointer;font-size:1rem;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:980px){
+  .header{height:auto;min-height:68px;padding:14px 18px;}
+  .nav{display:none;}
+  .brand small{display:none;}
+  .login{padding:10px 14px;}
+  .page-section{padding:90px 12px 28px;}
+  .hero{grid-template-columns:1fr;min-height:auto;}
+  .left{padding:44px 24px 20px;}
+  .right{height:480px;}
+  .workflow-area{right:50%;top:30px;transform:translateX(50%) scale(.8);transform-origin:top center;}
+  @keyframes workflowFloat{50%{transform:translateX(50%) scale(.8) translateY(-12px);}}
+  h1{font-size:42px;}
+  .bottom-features{grid-template-columns:repeat(2,1fr);height:auto;}
+  .content-grid{grid-template-columns:1fr;padding:28px 20px;}
+  .cards,.news-box{grid-template-columns:1fr;}
+  .wide{grid-column:span 1;}
+  .list-columns{columns:1;}
+  .contact-container{grid-template-columns:1fr;max-width:98%;}
+  .input-row{grid-template-columns:1fr;}
+  .section-title-card{min-height:auto;}
+}
+@media(max-width:560px){
+  .workflow-area{transform:translateX(50%) scale(.6);}
+  @keyframes workflowFloat{50%{transform:translateX(50%) scale(.6) translateY(-12px);}}
+  .bottom-features{grid-template-columns:1fr;margin:0 10px 14px;}
+  .right{height:380px;}
+  .feature-text small{white-space:normal;}
+  .brand-title{font-size:13px;}
+  .header{border-radius:20px;}
+  .ai-panel{width:calc(100vw - 60px);}
+  .contact-container{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- Background canvas (single instance) -->
+<canvas id="bubbles-bg"></canvas>
+<div id="scroll-progress"></div>
+<div class="bg-orb one"></div>
+<div class="bg-orb two"></div>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <a class="brand" href="#home">
+    <canvas id="bubbles"></canvas>
+    <div class="brand-badge">
+  <img src="logo.jpg" alt="Nandan RCM Logo">
+</div>
+    <div>
+      <span class="brand-title">Nandan RCM Solutions</span>
+      <small>Beyond Training. Building Careers.</small>
+    </div>
+  </a>
+  <nav class="nav">
+    <a href="#home" class="active">Home</a>
+    <a href="#about">About</a>
+    <a href="#course">Training</a>
+    <a href="#why">Why We</a>
+    <a href="#news">News</a>
+    <a href="#" onclick="openContactPopup();return false;">Contact</a>
+  </nav>
+  <a href="signup.html" class="login">Sign Up</a>
+</header>
+
+<!-- ===== HOME ===== -->
+<section id="home" class="page-section">
+  <section class="shell">
+    <section class="hero">
+      <div class="left">
+        <div class="badge"><span></span> Premium US Healthcare &amp; RCM Training</div>
+        <h1><span class="skill">Skill</span> <span class="today">Today.</span><br><span class="lead">Lead Tomorrow.</span></h1>
+        <p class="desc">Build your career with practical Revenue Cycle Management training, real-time workflow practice, interview preparation, and placement-focused mentorship.</p>
+        <div class="ctas">
+          <a href="https://forms.cloud.microsoft/r/eb7yFu8PiR" target="_blank" class="btn">Enroll Now →</a>
+          <a href="login.html" class="btn secondary">Student Login</a>
+          <a href="#about" class="btn secondary">Explore More</a>
+        </div>
+      </div>
+      <div class="right">
+        <div class="workflow-area">
+          <div class="workflow-card">
+            <h3>RCM Career Workflow</h3>
+            <p>Learn the complete end-to-end process from demos to charges, payment posting, claims, AR follow-up and collections.</p>
+          </div>
+          <div class="rcm-box"><h2>Nandan RCM</h2><p>Comprehensive RCM Training &amp; Support.</p></div>
+          <div class="workflow-path"></div>
+          <div class="workflow-line"></div>
+          <div class="step-dot d1"><span>Charges</span></div>
+          <div class="step-dot d2 gold"><span>Payments</span></div>
+          <div class="step-dot d3"><span>Claims</span></div>
+          <div class="step-dot d4 gold"><span>AR</span></div>
+          <div class="step-dot d5"><span>Collections</span></div>
+          <span class="orbit-particle p1"></span>
+          <span class="orbit-particle p2"></span>
+          <span class="orbit-particle p3"></span>
+          <span class="mini-glow g1"></span>
+          <span class="mini-glow g2"></span>
+          <span class="mini-glow g3"></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="bottom-features">
+      <div class="feature-box"><div class="feature-icon">🏥</div><div class="feature-text"><b>Expert Trainers</b><small>15+ Years Industry Experience</small></div></div>
+      <div class="feature-box"><div class="feature-icon">💻</div><div class="feature-text"><b>Online Training Pan-India</b><small>End-to-end workflow</small></div></div>
+      <div class="feature-box"><div class="feature-icon">🚀</div><div class="feature-text"><b>Placement Assistance</b><small>Career success support</small></div></div>
+      <div class="feature-box"><div class="feature-icon">🎯</div><div class="feature-text"><b>Interview Prep</b><small>Resume &amp; mock calls</small></div></div>
+    </div>
+
+  </section>
+
+<a href="#about" class="next-arrow">🢗</a>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about" class="page-section">
+  <section class="shell">
+    <div class="content-grid">
+      <div class="section-title-card">
+        <div class="kicker">About Us</div>
+        <h2>RCM Training Excellence</h2>
+        <p>At Nandan RCM, our mission is to build careers, enhance skills, and support students until they get placed.</p>
+        <div class="ctas">
+          <a href="#course" class="btn">View Training →</a>
+          <a href="#" onclick="openContactPopup();return false;" class="btn secondary">Contact Us</a>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="info-card wide">
+          <span class="emoji">✨</span>
+          <h3>Your Career, Our Commitment</h3>
+          <p>Leading Revenue Cycle Management training institute with over 15+ years of real-time industry experience in the US healthcare industry. We specialize in practical RCM training, skill development, interview preparation, and placement assistance for both freshers and experienced professionals.</p>
+        </div>
+        <div class="info-card">
+          <span class="emoji">🧑‍🏫</span>
+          <h3>Expert Mentorship</h3>
+          <p>Learn from trainers who understand real-world RCM processes and help you build job-ready confidence.</p>
+        </div>
+        <div class="info-card">
+          <span class="emoji">🚀</span>
+          <h3>Career Focused</h3>
+          <p>Get industry-ready through real-world project scenarios, mock calls, resume support, and placement-focused training.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+<a href="#course" class="next-arrow">🢗</a>
+</section>
+
+<!-- ===== TRAINING ===== -->
+<section id="course" class="page-section">
+  <section class="shell">
+    <div class="content-grid">
+      <div class="section-title-card">
+        <div class="kicker">Training</div>
+        <h2>Professional RCM Training</h2>
+        <p>Complete US Healthcare and RCM workflow learning with practical examples, notes, interview guidance, and career support.</p>
+        <div class="ctas">
+          <a href="https://forms.cloud.microsoft/r/eb7yFu8PiR" target="_blank" class="btn">Enroll Now →</a>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="info-card wide">
+          <span class="emoji">📚</span>
+          <h3>Course Modules</h3>
+          <ul class="list-columns">
+            <li>Introduction to US Healthcare &amp; HIPAA</li>
+            <li>Demos &amp; Charge Entry</li>
+            <li>Payment Posting &amp; CBR</li>
+            <li>Claims and Denial Management</li>
+            <li>AR Calling &amp; Follow-ups</li>
+            <li>Patient Collections &amp; Correspondence</li>
+            <li>End-to-End RCM Process</li>
+            <li>Email Etiquettes, Excel and Soft Skills</li>
+            <li>Resume &amp; Interview Preparation</li>
+            <li>Client Communication &amp; Leadership Skills</li>
+            <li>Job Readiness &amp; Career Development Plans</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <span class="emoji">💻</span>
+          <h3>Live Online Classes</h3>
+          <p>Flexible sessions for students and working professionals with clear, simple explanations.</p>
+        </div>
+        <div class="info-card">
+          <span class="emoji">📝</span>
+          <h3>Study Materials</h3>
+          <p>Updated notes, workflow references, interview questions, and practice guidance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<a href="#why" class="next-arrow">🢗</a>
+
+</section>
+</section>
+</section>
+
+<!-- ===== WHY US ===== -->
+<section id="why" class="page-section">
+  <section class="shell">
+    <div class="content-grid">
+      <div class="section-title-card">
+        <div class="kicker">Why We</div>
+        <h2>Career Growth Starts Here</h2>
+        <p>Focused learning, personal mentorship, and practical RCM workflow training designed to make students confident and job-ready.</p>
+        <div class="ctas">
+          <a href="#news" class="btn secondary">Next: News</a>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="info-card wide">
+          <span class="emoji">🎯</span>
+          <h3>Why Choose Nandan RCM?</h3>
+          <ul class="list-columns">
+            <li>Real-Time US Healthcare &amp; RCM Training</li>
+            <li>15+ Years Industry Experienced Trainers</li>
+            <li>Simple, Easy &amp; Effective Teaching Approach</li>
+            <li>Corporate Style &amp; Job-Oriented Learning</li>
+            <li>Continuous Mentorship &amp; Career Support</li>
+            <li>Small Batch Size for Personal Attention</li>
+            <li>Updated Study Materials &amp; Notes</li>
+            <li>Flexible Timings for Students &amp; Professionals</li>
+            <li>100% Placement Assistance Support</li>
+            <li>Mock Calls, Job Updates &amp; Referral Guidance</li>
+            <li>Focus On Presentation &amp; Confidence Building</li>
+            <li>Regional &amp; Local Language Support</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <span class="emoji">🏆</span>
+          <h3>Placement Assistance</h3>
+          <p>Resume preparation, interview practice, job updates, and referral guidance.</p>
+        </div>
+        <div class="info-card">
+          <span class="emoji">🤝</span>
+          <h3>Personal Attention</h3>
+          <p>Small batches and continuous mentorship make learning easier and more effective.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+<a href="#news" class="next-arrow">🢗</a>
+</section>
+
+<!-- ===== NEWS ===== -->
+<section id="news" class="page-section">
+  <section class="shell">
+    <div class="content-grid">
+      <div class="section-title-card">
+        <div class="kicker">News</div>
+        <h2>Updates &amp; Announcements</h2>
+        <p>Stay connected for upcoming demos, new batches, webinars, job updates, and RCM learning announcements.</p>
+        <div class="ctas">
+          <a href="#home" class="btn secondary">Back to Home ↑</a>
+          <a href="#" onclick="openContactPopup();return false;" class="btn">Contact Us</a>
+        </div>
+      </div>
+      <div class="news-box">
+        <div class="news-card">
+          <h3>New Batch Updates</h3>
+          <p>Follow Nandan RCM Solutions for training schedules, free demo sessions, webinars, internships, and placement support updates.</p>
+          <br>
+          <p>Click Enroll Now to register your interest through the official form.</p>
+          <br>
+          <a href="https://forms.cloud.microsoft/r/eb7yFu8PiR" target="_blank" class="btn">Enroll Now →</a>
+        </div>
+        <div class="news-globe">🌐</div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="icons">
+        <a href="https://wa.me/919490369957" target="_blank" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="https://www.facebook.com" target="_blank" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://t.me" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+        <a href="https://www.youtube.com" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+      <div>© Nandan RCM Solutions. All rights reserved.</div>
+    </footer>
+  </section>
+</section>
+
+<!-- =========================
+     RCM AI ASSISTANT - OLD VERSION
+========================= -->
+<div class="ai-bot-btn" onclick="toggleAIPanel()">
+  <i class="fa-solid fa-robot"></i>
+</div>
+
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-header">
+    <div class="ai-title">
+      <i class="fa-solid fa-robot"></i>
+      <span>Nandan RCM AI</span>
+    </div>
+    <div class="ai-close" onclick="toggleAIPanel()">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+  </div>
+
+  <div class="ai-chat-box" id="aiChatBox">
+    <div class="bot-msg">
+      I am Nandan RCM AI, How may I help you!<br><br>
+      Please share your name and contact number to continue.
+    </div>
+  </div>
+
+  <div class="ai-quick-actions">
+    <a href="https://t.me/NandanRCM_bot" target="_blank">
+      <i class="fa-brands fa-telegram"></i>
+      Telegram
+    </a>
+    <a href="https://wa.me/919490369957" target="_blank">
+      <i class="fa-brands fa-whatsapp"></i>
+      WhatsApp
+    </a>
+  </div>
+
+  <div class="ai-input-area">
+    <input type="text" id="aiInput" placeholder="Type your question..." onkeydown="if(event.key==='Enter') sendAIMessage()">
+    <button onclick="sendAIMessage()">
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ===== CONTACT POPUP ===== -->
+<div id="contactPopup" class="contact-popup">
+  <div class="contact-container">
+    <span class="close-popup" onclick="closeContactPopup()">×</span>
+    <div class="contact-left">
+      <h1>Say <span>Hi...</span></h1>
+      <div class="left-line"></div>
+      <p>Have questions about our RCM training<br>or need support? We're here to help.<br>Reach out to us anytime!</p>
+      <div class="contact-details">
+        <div class="detail-box"><i class="fa-solid fa-phone"></i><span>+(91) 94903 69957</span></div>
+        <div class="detail-box"><i class="fa-regular fa-envelope"></i><span>info@nandanrcm.online</span></div>
+      </div>
+      <div class="contact-divider"></div>
+      <h4 class="follow-title">Follow Us</h4>
+      <div class="social-icons">
+        <a href="https://wa.me/919490369957" target="_blank" title="WhatsApp" class="social-wa"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="https://www.facebook.com" target="_blank" title="Facebook" class="social-fb"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com" target="_blank" title="Instagram" class="social-ig"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://t.me/nandanRCM_bot" target="_blank" title="Telegram" class="social-tg"><i class="fa-brands fa-telegram"></i></a>
+        <a href="https://www.youtube.com" target="_blank" title="YouTube" class="social-yt"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+      <div class="brand-box">
+        <h2>Nandan RCM Solutions</h2>
+        <p>Beyond Training. Building Careers.</p>
+      </div>
+    </div>
+    <div class="contact-right">
+      <h2>Let's get in <span>touch.</span></h2>
+      <h3>We would love to hear from you!</h3>
+      <form action="https://formsubmit.co/nandanrcm@outlook.com" method="POST">
+        <input type="hidden" name="_subject" value="New Contact Form - Nandan RCM">
+        <input type="hidden" name="_captcha" value="false">
+        <div class="input-row">
+          <div class="input-box">
+            <i class="fa-regular fa-user"></i>
+            <input type="text" name="First Name" placeholder="First Name" required>
+          </div>
+          <div class="input-box">
+            <i class="fa-regular fa-user"></i>
+            <input type="text" name="Last Name" placeholder="Last Name" required>
+          </div>
+        </div>
+        <div class="input-box">
+          <i class="fa-regular fa-envelope"></i>
+          <input type="email" name="Email" placeholder="Email" required>
+        </div>
+        <div class="input-box">
+          <i class="fa-solid fa-mobile-screen"></i>
+          <input type="tel" name="Phone" placeholder="Phone" required>
+        </div>
+        <div class="input-box textarea-box">
+          <i class="fa-regular fa-pen-to-square"></i>
+          <textarea name="Message" placeholder="Describe your issue" required></textarea>
+        </div>
+        <button type="submit" class="send-btn"><i class="fa-solid fa-paper-plane"></i> Send message</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+
+<!-- Scroll progress bar -->
+<script>
+window.addEventListener("scroll", function () {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById("scroll-progress").style.width = pct + "%";
+});
+</script>
+
+<!-- Nav active link highlight -->
+<script>
+const navLinks = [...document.querySelectorAll('.nav a[href^="#"]')];
+window.addEventListener('scroll', () => {
+  let current = 'home';
+  document.querySelectorAll('.page-section').forEach(sec => {
+    if (window.scrollY >= sec.offsetTop - 160) current = sec.id;
+  });
+  navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+});
+</script>
+
+<!-- Contact popup -->
+<script>
+function openContactPopup() {
+  document.getElementById("contactPopup").classList.add("active");
+}
+function closeContactPopup() {
+  document.getElementById("contactPopup").classList.remove("active");
+}
+document.addEventListener("click", function (event) {
+  const popup = document.getElementById("contactPopup");
+  if (popup && event.target === popup) closeContactPopup();
+});
+</script>
+
+<!-- AI Bot - old FAQ flow -->
+<script>
+let userName = "";
+let userContact = "";
+let askStage = "name";
+
+function toggleAIPanel(){
+  document.getElementById("aiPanel").classList.toggle("active");
+}
+
+function addMessage(type, text){
+  const chatBox = document.getElementById("aiChatBox");
+  chatBox.innerHTML += `
+    <div class="${type}">${text}</div>
+  `;
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendAIMessage(){
+  const input = document.getElementById("aiInput");
+  const message = input.value.trim();
+  if(message === "") return;
+
+  addMessage("user-msg", message);
+  input.value = "";
+
+  if(askStage === "name"){
+    userName = message;
+    setTimeout(() => {
+      addMessage("bot-msg", "Thank you " + userName + ". Please share your mobile number or email address.");
+    }, 400);
+    askStage = "contact";
+    return;
+  }
+
+  if(askStage === "contact"){
+    userContact = message;
+    setTimeout(() => {
+      addMessage("bot-msg", "Thank you. You can now ask me about RCM training, fee details, demo sessions, placements, trainers, timings, study materials, or support.");
+    }, 400);
+    askStage = "chat";
+    return;
+  }
+
+  let msg = message.toLowerCase();
+  let reply = "";
+
+  if(msg.includes("who are you")){
+    reply = "I am Nandan RCM AI.";
+  }
+  else if(msg.includes("training") || msg.includes("course")){
+    reply = "We provide professional RCM training with real-time industry guidance. We also provide training in regional language. Please enroll or contact our team.";
+  }
+  else if(msg.includes("fee") || msg.includes("demo")){
+    reply = "We provide corporate style & job-oriented training at affordable price. Please enroll or contact our team for fee details and demo sessions.";
+  }
+  else if(msg.includes("placement") || msg.includes("job") || msg.includes("cv") || msg.includes("resume")){
+    reply = "We provide 100% placement support, resume guidance, mock interviews, and job assistance.";
+  }
+  else if(msg.includes("phone") || msg.includes("mobile") || msg.includes("email") || msg.includes("contact")){
+    reply = "You can contact us through Call, Email, WhatsApp, or Contact Us form.";
+  }
+  else if(msg.includes("trainer") || msg.includes("experience")){
+    reply = "Our trainers bring 15+ years of real-time experience in US Healthcare and RCM.";
+  }
+  else if(msg.includes("online")){
+    reply = "Online live interactive classes are available. We also provide training in regional language.";
+  }
+  else if(msg.includes("timing") || msg.includes("time")){
+    reply = "Flexible timings are available for students and working professionals. Please enroll or contact our team for details.";
+  }
+  else if(msg.includes("language") || msg.includes("batch")){
+    reply = "Small batch size for personal attention. We also provide training in regional language. Please enroll or contact our team for details.";
+  }
+  else if(msg.includes("material") || msg.includes("notes")){
+    reply = "Updated study materials and notes are provided.";
+  }
+  else if(msg.includes("bye") || msg.includes("thank you")){
+    reply = "Thank you for contacting Nandan RCM. Have a wonderful day ahead!.";
+  }
+  else if(msg.includes("mock") || msg.includes("interview")){
+    reply = "Mock interviews, confidence-building support and interview preparation are provided.";
+  }
+  else{
+    reply = "Thank you. Our team will assist you shortly regarding your query.";
+  }
+
+  setTimeout(() => {
+    addMessage("bot-msg", reply);
+  }, 400);
+}
+</script>
+
+<!-- Full-page bubbles background (single instance) -->
+<script>
+(function () {
+  const canvas = document.getElementById("bubbles-bg");
+  const ctx = canvas.getContext("2d");
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener("resize", resize);
+  const bubbles = Array.from({ length: 40 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 6 + 2,
+    speed: Math.random() * 1 + 0.3,
+    opacity: Math.random() * 0.5 + 0.2
+  }));
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = "rgba(0,198,255,0.3)";
+    bubbles.forEach(b => {
+      b.y -= b.speed;
+      if (b.y < -10) { b.y = canvas.height + 10; b.x = Math.random() * canvas.width; }
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+      const g = ctx.createRadialGradient(b.x - b.size * 0.3, b.y - b.size * 0.3, 1, b.x, b.y, b.size);
+      g.addColorStop(0, "rgba(255,255,255,0.6)");
+      g.addColorStop(0.4, "rgba(0,198,255,0.25)");
+      g.addColorStop(1, "rgba(255,255,255,0.05)");
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.stroke();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<!-- Logo area bubbles (single instance) -->
+<script>
+(function () {
+  const canvas = document.getElementById("dots");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  canvas.width = 170; canvas.height = 78;
+  const bubbles = Array.from({ length: 15 }, () => ({
+    x: Math.random() * 170,
+    y: 78 + Math.random() * 100,
+    size: Math.random() * 8 + 4,
+    speed: Math.random() * 1 + 0.5,
+    opacity: Math.random() * 0.5 + 0.3
+  }));
+  function draw() {
+    ctx.clearRect(0, 0, 170, 78);
+    bubbles.forEach(b => {
+      b.y -= b.speed;
+      if (b.y < -10) { b.y = 78 + 20; b.x = Math.random() * 170; }
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+      const g = ctx.createRadialGradient(b.x, b.y, b.size * 0.2, b.x, b.y, b.size);
+      g.addColorStop(0, `rgba(255,255,255,${b.opacity})`);
+      g.addColorStop(1, "rgba(0,198,255,0.1)");
+      ctx.fillStyle = g;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<!-- Firebase Auth (keep your own firebase config here) -->
+<script type="module">
+// NOTE: Keep Firebase config in a server-side environment variable for production.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  signOut, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBdMTgzZGI10Bu3z4dm-ZUSumxN50H7UjE",
+  authDomain: "nandan-rcm.firebaseapp.com",
+  projectId: "nandan-rcm",
+  appId: "1:418121831280:web:8f2eb7228971d0fbe7b5b5"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.handleLogin = function () {
+  const btn = document.getElementById("loginBtn");
+  if (!btn) return;
+  btn.innerText = "⏳ Processing..."; btn.disabled = true;
+  const input = document.getElementById("loginInput").value;
+  const password = document.getElementById("password").value;
+  if (input.includes("@")) {
+    signInWithEmailAndPassword(auth, input, password)
+      .then(() => alert("Login Success"))
+      .catch(err => alert(err.message))
+      .finally(() => { btn.innerText = "Continue"; btn.disabled = false; });
+  } else {
+    const phone = input.startsWith("+") ? input : (document.getElementById("countryCode")?.value || "+91") + input;
+    signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+      .then(result => {
+        window.confirmationResult = result;
+        alert("OTP Sent ✅");
+        const otp = document.getElementById("otp");
+        const verBtn = document.getElementById("verifyBtn");
+        if (otp) otp.style.display = "block";
+        if (verBtn) verBtn.style.display = "block";
+      })
+      .catch(err => alert(err.message))
+      .finally(() => { btn.innerText = "Continue"; btn.disabled = false; });
+  }
+};
+
+window.handleSignup = function () {
+  const input = document.getElementById("loginInput")?.value;
+  const password = document.getElementById("password")?.value;
+  if (!input || !input.includes("@")) { alert("Use phone login with OTP 📱"); return; }
+  if (!password || password.length < 6) { alert("Password must be at least 6 characters"); return; }
+  createUserWithEmailAndPassword(auth, input, password)
+    .then(uc => alert("Signup Successful ✅"))
+    .catch(err => alert(err.message));
+};
+
+window.verifyOTP = function () {
+  if (!window.confirmationResult) { alert("Please request OTP first"); return; }
+  const otp = document.getElementById("otp");
+  window.confirmationResult.confirm(otp?.value || "")
+    .then(() => { alert("Phone Login Success"); if (otp) { otp.value = ""; otp.style.display = "none"; } const v = document.getElementById("verifyBtn"); if (v) v.style.display = "none"; })
+    .catch(() => alert("Invalid OTP"));
+};
+
+window.logout = function () {
+  signOut(auth).then(() => {
+    alert("Logged Out");
+    ["loginInput", "password", "otp"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+    const otp = document.getElementById("otp"); if (otp) otp.style.display = "none";
+    const v = document.getElementById("verifyBtn"); if (v) v.style.display = "none";
+  });
+};
+</script>
+
+</body>
+</html>
