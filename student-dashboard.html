@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nandan RCM Student Dashboard</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif; }
+
+body{
+  width:100%; height:100vh;
+  background:
+    radial-gradient(circle at top right,  rgba(0,198,255,.18), transparent 35%),
+    radial-gradient(circle at bottom left, rgba(255,179,0,.12), transparent 32%),
+    #000633;
+  color:#fff; overflow:hidden;
+}
+
+#authGate{
+  position:fixed; inset:0; background:#000633;
+  display:flex; align-items:center; justify-content:center;
+  z-index:99999; transition:opacity .4s;
+}
+#authGate.hide{ opacity:0; pointer-events:none; }
+#authGate p{ color:rgba(255,255,255,.6); font-size:14px; }
+
+#toast{
+  position:fixed; bottom:30px; right:30px;
+  background:linear-gradient(135deg,#00a85a,#2cff88);
+  color:#000633; font-weight:700; font-size:14px;
+  padding:12px 22px; border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+  opacity:0; transform:translateY(12px);
+  transition:.35s ease; pointer-events:none; z-index:9999;
+}
+#toast.show{ opacity:1; transform:translateY(0); }
+
+.dashboard{
+  display:flex; gap:12px;
+  padding:25px 6px 6px 10px;
+  transform:scale(.94); transform-origin:top left;
+  width:106%; height:106%;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:220px; margin-top:14px;
+  height:calc(100vh - 30px);
+  background:rgba(1,14,41,.72);
+  border:1px solid rgba(0,198,255,.28);
+  border-radius:18px; padding:16px 12px;
+  display:flex; flex-direction:column;
+  box-shadow:0 0 28px rgba(0,198,255,.12);
+  flex-shrink:0;
+}
+.logo{ text-align:center; padding-bottom:14px; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,.12); }
+.logo h1{ font-size:26px; font-weight:700; letter-spacing:.5px; line-height:1.1; display:flex; align-items:center; justify-content:center; gap:7px; }
+.logo .nandan{ color:#fff; }
+.logo .rcm{ color:#ffb300; }
+.logo p{ font-size:13px; font-weight:600; letter-spacing:2px; color:#fff; }
+
+.nav-item{ height:39px; display:flex; align-items:center; gap:11px; padding:0 12px; border-radius:10px; margin-bottom:6px; color:#fff; font-size:13px; cursor:pointer; transition:.3s; }
+.nav-item i{ color:#00c6ff; width:18px; }
+.nav-item.active, .nav-item:hover{ background:rgba(0,198,255,.16); box-shadow:inset 4px 0 #ffb300; }
+
+.student-profile{ margin-top:auto; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:14px; padding:10px; display:flex; align-items:center; gap:10px; }
+.avatar{ width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#ffb300,#00c6ff); display:flex; align-items:center; justify-content:center; color:#000633; font-weight:800; }
+.student-profile h4{ font-size:13px; }
+.student-profile p{ font-size:11px; color:rgba(255,255,255,.65); }
+
+/* MAIN */
+.main{ flex:1; height:calc(100vh - 0px); padding:8px 4px 8px 0; overflow-y:auto; margin-top:14px;
+  scrollbar-width:thin; scrollbar-color:rgba(0,198,255,.2) transparent; }
+.main::-webkit-scrollbar{ width:4px; }
+.main::-webkit-scrollbar-thumb{ background:rgba(0,198,255,.2); border-radius:4px; }
+
+.topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.topbar h1{ font-size:24px; font-weight:700; }
+.topbar p{ font-size:13px; color:rgba(255,255,255,.72); margin-top:4px; }
+.logout-btn{ border:none; background:linear-gradient(90deg,#ffb300,#ffd76a); color:#000633; padding:10px 24px; border-radius:12px; font-weight:800; cursor:pointer; box-shadow:0 10px 24px rgba(255,179,0,.24); }
+
+/* STATS */
+.stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:12px; }
+.stat-card{ height:80px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13); border-radius:15px; padding:13px; display:flex; align-items:center; gap:12px; }
+.stat-icon{ width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; }
+.blue  { background:linear-gradient(135deg,#006dff,#00c6ff); }
+.green { background:linear-gradient(135deg,#00a85a,#2cff88); }
+.orange{ background:linear-gradient(135deg,#ff8c00,#ffb300); }
+.purple{ background:linear-gradient(135deg,#7c3aed,#c084fc); }
+.stat-card h2{ font-size:28px; line-height:1; }
+.stat-card p{ font-size:11.5px; color:rgba(255,255,255,.70); }
+
+/* FEATURE ROW */
+.feature-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.feature-card{ height:108px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13); border-radius:17px; padding:16px; display:flex; align-items:center; justify-content:space-between; }
+.feature-card h3{ font-size:18px; margin-bottom:5px; }
+.feature-card p{ font-size:11.5px; line-height:1.4; color:rgba(255,255,255,.70); margin-bottom:5px; }
+.feature-card a{ color:#ffb300; text-decoration:none; font-weight:700; font-size:12.5px; }
+.feature-icon{ font-size:42px; color:#00c6ff; opacity:.9; }
+
+/* QUICK ACCESS */
+.quick-title{ font-size:20px; margin-bottom:9px; }
+.quick-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+.quick-card{ height:112px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13); border-radius:15px; padding:13px; position:relative; transition:.3s; cursor:pointer; }
+.quick-card:hover{ transform:translateY(-3px); box-shadow:0 0 22px rgba(0,198,255,.22); }
+.quick-card i{ font-size:21px; color:#00c6ff; margin-bottom:8px; }
+.quick-card h3{ font-size:14px; margin-bottom:4px; }
+.quick-card p{ font-size:10.8px; line-height:1.35; color:rgba(255,255,255,.65); }
+.quick-card .arrow{ position:absolute; right:11px; bottom:11px; width:24px; height:24px; border-radius:50%; border:1px solid rgba(0,198,255,.6); display:flex; align-items:center; justify-content:center; }
+.quick-card .arrow i{ font-size:12px; margin:0; color:#fff; }
+
+/* FEATURE PAGE */
+.feature-page{ max-width:760px; }
+.feature-hero{
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13);
+  border-radius:18px; padding:24px 22px; margin-bottom:16px;
+  display:flex; align-items:center; gap:20px;
+}
+.feature-hero-icon{
+  width:64px; height:64px; border-radius:18px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:28px;
+}
+.feature-hero h2{ font-size:22px; font-weight:800; margin-bottom:4px; }
+.feature-hero p{ font-size:13px; color:rgba(255,255,255,.65); }
+
+.feature-section{
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.11);
+  border-radius:15px; padding:18px; margin-bottom:12px;
+}
+.feature-section h4{
+  font-size:13px; font-weight:700; color:rgba(255,255,255,.5);
+  letter-spacing:.8px; text-transform:uppercase; margin-bottom:12px;
+}
+
+/* ACTION BUTTON */
+.action-btn{
+  display:inline-flex; align-items:center; gap:9px;
+  padding:11px 22px; border-radius:12px; border:none;
+  font-size:14px; font-weight:700; cursor:pointer;
+  font-family:"Poppins",sans-serif; text-decoration:none;
+  transition:.2s; margin-right:10px; margin-bottom:8px;
+}
+.action-btn.gold{ background:#ffb300; color:#000633; box-shadow:0 6px 18px rgba(255,179,0,.28); }
+.action-btn.gold:hover{ opacity:.88; transform:translateY(-1px); }
+.action-btn.blue{ background:rgba(0,109,255,.25); color:#5ab4ff; border:1px solid rgba(0,109,255,.4); }
+.action-btn.blue:hover{ background:rgba(0,109,255,.35); }
+
+/* STATUS PILL */
+.status-pill{
+  display:inline-block; padding:5px 14px; border-radius:20px;
+  font-size:12px; font-weight:700;
+}
+.pill-green{ background:rgba(0,200,100,.15); color:#2cff88; border:1px solid rgba(0,200,100,.3); }
+.pill-yellow{ background:rgba(255,179,0,.15); color:#ffb300; border:1px solid rgba(255,179,0,.3); }
+.pill-red{ background:rgba(255,60,60,.15); color:#ff7070; border:1px solid rgba(255,60,60,.3); }
+.pill-blue{ background:rgba(0,109,255,.15); color:#5ab4ff; border:1px solid rgba(0,109,255,.3); }
+
+/* LOCKED STATE */
+.locked-state{
+  text-align:center; padding:40px 20px;
+  color:rgba(255,255,255,.35);
+}
+.locked-state i{ font-size:44px; margin-bottom:14px; color:rgba(0,198,255,.3); display:block; }
+.locked-state h3{ font-size:16px; font-weight:700; color:rgba(255,255,255,.5); margin-bottom:8px; }
+.locked-state p{ font-size:13px; line-height:1.6; }
+
+/* FILE CARD */
+.file-card{
+  display:flex; align-items:center; gap:14px;
+  background:rgba(0,198,255,.07); border:1px solid rgba(0,198,255,.2);
+  border-radius:12px; padding:14px 16px; margin-bottom:10px;
+  text-decoration:none; color:#fff; transition:.2s;
+}
+.file-card:hover{ background:rgba(0,198,255,.14); transform:translateX(3px); }
+.file-card i{ font-size:22px; color:#00c6ff; }
+.file-card span{ font-size:13px; font-weight:600; }
+.file-card .file-arrow{ margin-left:auto; color:#00c6ff; font-size:14px; }
+
+/* INFO ROW */
+.info-row{ display:flex; gap:8px; align-items:flex-start; margin-bottom:10px; font-size:13px; }
+.info-row i{ color:#00c6ff; margin-top:2px; width:16px; flex-shrink:0; }
+.info-row span{ color:rgba(255,255,255,.8); line-height:1.55; }
+
+/* TICKET FORM */
+.ticket-form input, .ticket-form textarea, .ticket-form select{
+  width:100%; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.15);
+  border-radius:10px; color:#fff; padding:10px 13px; font-size:13px;
+  font-family:"Poppins",sans-serif; outline:none; margin-bottom:12px;
+  transition:border-color .2s;
+}
+.ticket-form input:focus, .ticket-form textarea:focus, .ticket-form select:focus{ border-color:#00c6ff; }
+.ticket-form textarea{ min-height:90px; resize:vertical; }
+.ticket-form select option{ background:#000633; }
+.ticket-form label{ display:block; font-size:12px; color:rgba(255,255,255,.65); margin-bottom:5px; }
+
+/* SUPPORT LINKS */
+.support-link-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.support-link-card{
+  display:flex; align-items:center; gap:12px; padding:14px 16px;
+  border-radius:14px; text-decoration:none; color:#fff;
+  background:rgba(0,198,255,.08); border:1px solid rgba(0,198,255,.22);
+  transition:.25s ease;
+}
+.support-link-card:hover{ transform:translateY(-2px); background:rgba(0,198,255,.14); box-shadow:0 0 20px rgba(0,198,255,.16); }
+.support-link-card i{ width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; background:rgba(0,198,255,.16); color:#00c6ff; }
+.support-link-card h3{ font-size:14px; margin-bottom:2px; }
+.support-link-card p{ font-size:11.5px; color:rgba(255,255,255,.6); }
+
+/* ATTENDANCE CALENDAR */
+.attendance-month-bar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px; }
+.attendance-month-bar h3{ font-size:18px; color:#fff; }
+.attendance-nav-btn{ border:1px solid rgba(0,198,255,.35); background:rgba(0,198,255,.12); color:#fff; border-radius:10px; padding:8px 12px; cursor:pointer; font-weight:700; }
+.attendance-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:9px; }
+.day-name{ text-align:center; font-size:11px; color:rgba(255,255,255,.45); font-weight:700; padding:5px; }
+.attendance-day{ min-height:76px; border-radius:13px; padding:9px; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.10); display:flex; flex-direction:column; justify-content:space-between; }
+.attendance-day.empty{ opacity:0; pointer-events:none; }
+.attendance-day.today{ border-color:#ffb300; box-shadow:0 0 14px rgba(255,179,0,.18); }
+.attendance-date{ font-size:13px; font-weight:800; }
+.attendance-mark-btn{ border:none; border-radius:9px; padding:6px 7px; font-size:10.5px; font-weight:800; cursor:pointer; background:#ffb300; color:#000633; }
+.attendance-marked{ border-radius:9px; padding:6px 7px; font-size:10.5px; font-weight:800; text-align:center; background:rgba(44,255,136,.15); color:#2cff88; border:1px solid rgba(44,255,136,.32); }
+.attendance-disabled{ border-radius:9px; padding:6px 7px; font-size:10.5px; font-weight:700; text-align:center; background:rgba(255,255,255,.06); color:rgba(255,255,255,.35); }
+@media(max-width:700px){ .attendance-grid{ gap:5px; } .attendance-day{ min-height:68px; padding:7px; } .support-link-grid{ grid-template-columns:1fr; } }
+
+/* PAYMENT */
+.payment-layout{ display:flex; gap:16px; }
+.payment-sidebar{ width:200px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13); border-radius:15px; padding:12px; flex-shrink:0; }
+.payment-menu{ padding:11px 12px; margin-bottom:8px; border-radius:10px; cursor:pointer; background:rgba(255,255,255,.05); font-size:13px; font-weight:600; transition:.2s; }
+.payment-menu:hover{ background:rgba(0,198,255,.15); }
+.payment-menu.active{ background:rgba(0,198,255,.18); box-shadow:inset 3px 0 #ffb300; }
+.payment-content{ flex:1; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13); border-radius:15px; padding:20px; }
+
+/* PROFILE */
+.profile-tabs{ display:flex; gap:12px; margin-bottom:16px; }
+.profile-tab-btn{ width:165px; height:40px; border:none; border-radius:11px; background:#ffb300; color:#000633; font-weight:800; cursor:pointer; font-family:"Poppins",sans-serif; font-size:13px; transition:.25s; }
+.profile-tab-btn:hover{ opacity:.88; }
+.profile-tab-btn.blue-btn{ background:#00c6ff; color:#000633; }
+.profile-card{ max-width:520px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:17px; padding:18px; margin-bottom:14px; }
+.profile-card h3{ margin-bottom:14px; font-size:18px; }
+.form-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.input-box{ margin-bottom:12px; }
+.input-box label{ display:block; font-size:12px; margin-bottom:5px; color:rgba(255,255,255,.78); }
+.input-box input{ width:100%; height:36px; border-radius:9px; border:1px solid rgba(255,255,255,.18); background:rgba(0,10,35,.35); color:#fff; padding:0 12px; outline:none; font-size:13px; font-family:"Poppins",sans-serif; transition:border-color .25s; }
+.input-box input:focus{ border-color:#00c6ff; }
+.save-btn{ width:100%; height:38px; border:none; border-radius:11px; background:#ffb300; color:#000633; font-weight:800; font-size:13px; cursor:pointer; font-family:"Poppins",sans-serif; transition:.25s; }
+.save-btn:hover{ opacity:.88; }
+.save-btn:disabled{ opacity:.55; cursor:not-allowed; }
+.profile-msg{ padding:8px 12px; border-radius:9px; font-size:12.5px; font-weight:600; margin-bottom:12px; display:none; }
+.profile-msg.err{ background:rgba(255,60,60,.18); border:1px solid rgba(255,60,60,.4); color:#ff6b6b; }
+.profile-msg.ok{ background:rgba(0,200,100,.15); border:1px solid rgba(0,200,100,.35); color:#2cff88; }
+
+@media(max-width:1100px){
+  body{ overflow:auto; }
+  .dashboard{ transform:none; width:100%; height:auto; flex-direction:column; }
+  .sidebar{ width:100%; height:auto; margin-top:0; }
+  .main{ width:100%; height:auto; overflow:visible; }
+  .stats,.feature-row,.quick-grid,.form-row{ grid-template-columns:1fr; }
+  .payment-layout{ flex-direction:column; }
+  .payment-sidebar{ width:100%; }
+}
+</style>
+</head>
+<body>
+
+<div id="authGate"><p><i class="fa-solid fa-circle-notch fa-spin" style="margin-right:8px;color:#00c6ff;"></i>Loading...</p></div>
+<div id="toast"></div>
+
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="logo">
+      <h1><span class="nandan">Nandan</span> <span class="rcm">RCM</span></h1>
+      <p>Solutions</p>
+    </div>
+
+    <div class="nav-item active"  onclick="openDashboard(this)">         <i class="fa-solid fa-house"></i> Dashboard</div>
+    <div class="nav-item"         onclick="openFeaturePage('My Courses',this)">  <i class="fa-solid fa-book-open"></i> My Courses</div>
+    <div class="nav-item"         onclick="openFeaturePage('Webinars',this)">     <i class="fa-solid fa-person-chalkboard"></i> Webinars</div>
+    <div class="nav-item"         onclick="openFeaturePage('Recordings/Notes',this)"><i class="fa-solid fa-chalkboard-user"></i> Recordings/Notes</div>
+    <div class="nav-item"         onclick="openFeaturePage('Internships',this)">  <i class="fa-solid fa-user-graduate"></i> Internships</div>
+    <div class="nav-item"         onclick="openFeaturePage('Documents',this)">    <i class="fa-solid fa-folder-open"></i> Documents</div>
+    <div class="nav-item"         onclick="openFeaturePage('Attendance',this)">   <i class="fa-solid fa-user-check"></i> Attendance</div>
+    <div class="nav-item"         onclick="openPayments(this)">           <i class="fa-solid fa-wallet"></i> Payments</div>
+    <div class="nav-item"         onclick="openProfile(this)">            <i class="fa-solid fa-user"></i> My Profile</div>
+
+    <div class="student-profile">
+      <div class="avatar" id="sidebarAvatar">S</div>
+      <div><h4 id="sidebarName">Student</h4><p>Online</p></div>
+    </div>
+  </aside>
+
+  <main class="main" id="mainContent"></main>
+</div>
+
+<script>
+// ── FIREBASE ──────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:    "AIzaSyBdMTgzZGI10Bu3z4dm-ZUSumxN50H7UjE",
+  authDomain:"nandan-rcm.firebaseapp.com",
+  projectId: "nandan-rcm",
+  appId:     "1:418121831280:web:8f2eb7228971d0fbe7b5b5"
+});
+const auth = firebase.auth();
+const db   = firebase.firestore();
+let SD = {}; // student data cache
+
+// ── AUTH GATE ─────────────────────────────────────────────────────
+auth.onAuthStateChanged(async function(user){
+  if(!user){ window.location.href="login.html"; return; }
+
+  const gate = document.getElementById("authGate");
+  gate.classList.add("hide");
+  setTimeout(()=> gate.style.display="none", 400);
+
+  const name = user.displayName || user.email || "Student";
+  document.getElementById("sidebarName").textContent    = name.split(" ")[0];
+  document.getElementById("sidebarAvatar").textContent  = name.charAt(0).toUpperCase();
+
+  await loadStudentData();
+  openDashboard();
+});
+
+// ── LOAD STUDENT DATA ─────────────────────────────────────────────
+async function loadStudentData(){
+  const user = auth.currentUser;
+  if(!user) return;
+  try{
+    const snap = await db.collection("students").doc(user.uid).get();
+    if(snap.exists){
+      SD = snap.data();
+      if(SD.firstName){
+        document.getElementById("sidebarName").textContent   = SD.firstName;
+        document.getElementById("sidebarAvatar").textContent = SD.firstName.charAt(0).toUpperCase();
+      }
+    }
+  }catch(e){ console.warn("loadStudentData:", e.message); }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), 3200);
+}
+
+function setActive(el){
+  document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
+  if(el) el.classList.add("active");
+}
+
+function topbar(title, sub){
+  return `
+    <div class="topbar">
+      <div><h1>${title}</h1><p>${sub}</p></div>
+      <button class="logout-btn" onclick="logout()">Logout <i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>`;
+}
+
+function quickCard(icon, title, text, fn){
+  return `
+    <div class="quick-card" onclick="${fn}">
+      <i class="fa-solid ${icon}"></i>
+      <h3>${title}</h3>
+      <p>${text}</p>
+      <div class="arrow"><i class="fa-solid fa-angle-right"></i></div>
+    </div>`;
+}
+
+function lockedHTML(label){
+  return `
+    <div class="locked-state">
+      <i class="fa-solid fa-lock"></i>
+      <h3>${label} Not Assigned Yet</h3>
+      <p>This section hasn't been enabled for your account yet.<br>
+         Please contact your trainer or admin for access.</p>
+    </div>`;
+}
+
+function fileCard(url, label){
+  if(!url) return "";
+  return `
+    <a href="${url}" target="_blank" class="file-card">
+      <i class="fa-solid fa-file-arrow-down"></i>
+      <span>${label || "Download File"}</span>
+      <i class="fa-solid fa-arrow-up-right-from-square file-arrow"></i>
+    </a>`;
+}
+
+function escapeHTML(value){
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────
+function openDashboard(el){
+  if(el) setActive(el);
+  else document.querySelector(".nav-item").classList.add("active");
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("My Dashboard","Welcome back to your Nandan RCM learning portal. 👋")}
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-book-open"></i></div><div><h2 id="sc1">${SD.enrolledCourses||0}</h2><p>Enrolled Courses</p></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-chart-column"></i></div><div><h2 id="sc2">${SD.classesAttended||0}</h2><p>Classes Attended</p></div></div>
+      <div class="stat-card"><div class="stat-icon orange"><i class="fa-solid fa-circle-question"></i></div><div><h2 id="sc3">${SD.quizzesAvailable||0}</h2><p>Quizzes Available</p></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-award"></i></div><div><h2 id="sc4">${SD.certificatesEarned||(SD.certificateStatus==="Issued"?1:0)||0}</h2><p>Certificates Earned</p></div></div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-card">
+        <div><h3>Job Portal</h3><p>Explore RCM job openings, referrals, and placement updates.</p>
+          <a href="#" onclick="openFeaturePage('Job Portal')">View Opportunities →</a></div>
+        <div class="feature-icon"><i class="fa-solid fa-briefcase"></i></div>
+      </div>
+      <div class="feature-card">
+        <div><h3>AI Mock Interview</h3><p>Practice interview questions and improve confidence with AI feedback.</p>
+          <a href="#" onclick="openFeaturePage('AI Mock Interview')">Start Practice →</a></div>
+        <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
+      </div>
+    </div>
+
+    <h2 class="quick-title">Quick Access</h2>
+    <div class="quick-grid">
+      ${quickCard("fa-video",           "Live Classes",    "Join live sessions.",          "openFeaturePage('Live Classes')")}
+      ${quickCard("fa-user-tie",        "Mock Interviews", "Practice interviews.",          "openFeaturePage('Mock Interviews')")}
+      ${quickCard("fa-award",           "My Certificates", "View earned certificates.",     "openFeaturePage('My Certificates')")}
+      ${quickCard("fa-circle-question", "Quizzes",         "Test your knowledge.",          "openFeaturePage('Quizzes')")}
+      ${quickCard("fa-file-lines",      "Assignments",     "Submit your work.",             "openFeaturePage('Assignments')")}
+      ${quickCard("fa-ticket-simple",   "Tickets",         "Raise a support request.",      "openFeaturePage('Tickets')")}
+      ${quickCard("fa-file-word",       "Resume Builder",  "Build an ATS-friendly resume.", "openFeaturePage('Resume Builder')")}
+      ${quickCard("fa-bullhorn",        "Announcements",   "Latest news & updates.",        "openFeaturePage('Announcements')")}
+      ${quickCard("fa-chalkboard-user", "Recordings/Notes", "Access recordings and notes.", "openFeaturePage('Recordings/Notes')")}
+      ${quickCard("fa-calendar-days",   "Schedule",        "Upcoming classes.",             "openFeaturePage('Schedule')")}
+    </div>`;
+}
+
+// ── FEATURE PAGE ROUTER ───────────────────────────────────────────
+function openFeaturePage(title, el){
+  if(el) setActive(el);
+
+  const pages = {
+    "Live Classes":    pageLiveClasses,
+    "Mock Interviews": pageMockInterviews,
+    "My Certificates": pageCertificates,
+    "Quizzes":         pageQuizzes,
+    "Assignments":     pageAssignments,
+    "Tickets":         pageTickets,
+    "Resume Builder":  pageResumeBuilder,
+    "Announcements":   pageAnnouncements,
+    "Trainer Support": pageTrainerSupport,
+    "Recordings/Notes": pageRecordingsNotes,
+    "Schedule":        pageSchedule,
+    "Attendance":      pageAttendance,
+    "My Courses":      pageMyCourses,
+    "Webinars":        pageWebinars,
+    "Internships":     pageInternships,
+    "Documents":       pageDocuments,
+    "Job Portal":      pageJobPortal,
+    "AI Mock Interview": pageAiMock,
+  };
+
+  const fn = pages[title];
+  if(fn) fn();
+  else document.getElementById("mainContent").innerHTML = topbar(title,"") + lockedHTML(title);
+}
+
+// ── LIVE CLASSES ──────────────────────────────────────────────────
+function pageLiveClasses(){
+  const enabled = SD.liveClasses;
+  const link    = SD.liveClassLink || "";
+  const file    = SD.liveClassesFile || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Live Classes","Join your scheduled live training sessions.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon blue"><i class="fa-solid fa-video"></i></div>
+        <div>
+          <h2>Live Classes</h2>
+          <p>Real-time sessions with your trainer. Join on time for the best experience.</p>
+        </div>
+      </div>
+      ${!enabled ? lockedHTML("Live Classes") : `
+      <div class="feature-section">
+        <h4>Join Session</h4>
+        ${link ? `<a href="${link}" target="_blank" class="action-btn gold"><i class="fa-solid fa-video"></i> Join Live Class</a>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>No live link added yet.</p>"}
+      </div>
+      ${file ? `<div class="feature-section"><h4>Class Material</h4>${fileCard(file,"Download Class Material")}</div>` : ""}
+      <div class="feature-section">
+        <h4>Tips</h4>
+        <div class="info-row"><i class="fa-solid fa-circle-check"></i><span>Join 5 minutes early to avoid missing content.</span></div>
+        <div class="info-row"><i class="fa-solid fa-circle-check"></i><span>Keep your microphone muted unless asked to speak.</span></div>
+        <div class="info-row"><i class="fa-solid fa-circle-check"></i><span>Use a stable internet connection for best experience.</span></div>
+      </div>
+      `}
+    </div>`;
+}
+
+// ── MOCK INTERVIEWS ───────────────────────────────────────────────
+function pageMockInterviews(){
+  const enabled = SD.mockInterviews;
+  const text    = SD.mockInterviewText || "";
+  const file    = SD.mockInterviewsFile || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Mock Interviews","Practice and sharpen your interview skills.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon purple"><i class="fa-solid fa-user-tie"></i></div>
+        <div>
+          <h2>Mock Interviews</h2>
+          <p>Simulated interview sessions to build confidence before the real thing.</p>
+        </div>
+      </div>
+      ${!enabled ? lockedHTML("Mock Interviews") : `
+      <div class="feature-section">
+        <h4>Interview Details</h4>
+        ${text ? `<div class="info-row"><i class="fa-solid fa-calendar-days"></i><span>${text}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>Interview details will be shared soon.</p>"}
+      </div>
+      ${file ? `<div class="feature-section"><h4>Study Material</h4>${fileCard(file,"Download Interview Prep Material")}</div>` : ""}
+      <div class="feature-section">
+        <h4>Preparation Tips</h4>
+        <div class="info-row"><i class="fa-solid fa-star"></i><span>Review common RCM billing terminology.</span></div>
+        <div class="info-row"><i class="fa-solid fa-star"></i><span>Practice explaining the revenue cycle process end-to-end.</span></div>
+        <div class="info-row"><i class="fa-solid fa-star"></i><span>Be ready to discuss denial management scenarios.</span></div>
+      </div>
+      `}
+    </div>`;
+}
+
+// ── CERTIFICATES ──────────────────────────────────────────────────
+function pageCertificates(){
+  const enabled = SD.myCertificates;
+  const status  = SD.certificateStatus || "Not Issued";
+  const file    = SD.certificateFile || "";
+  const pillClass = status==="Issued"?"pill-green": status==="In Progress"?"pill-yellow":"pill-red";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("My Certificates","Your earned certifications from Nandan RCM.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon orange"><i class="fa-solid fa-award"></i></div>
+        <div>
+          <h2>My Certificates</h2>
+          <p>Certificates are issued upon successful completion of your course.</p>
+        </div>
+      </div>
+      ${!enabled ? lockedHTML("My Certificates") : `
+      <div class="feature-section">
+        <h4>Certificate Status</h4>
+        <div class="info-row">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Status: <span class="status-pill ${pillClass}">${status}</span></span>
+        </div>
+        ${status==="Issued" && file ? fileCard(file,"Download Certificate") : ""}
+        ${status==="Not Issued"?"<p style='font-size:12.5px;color:rgba(255,255,255,.5);margin-top:8px;'>Complete your course to receive your certificate.</p>":""}
+      </div>
+      `}
+    </div>`;
+}
+
+// ── QUIZZES ───────────────────────────────────────────────────────
+function pageQuizzes(){
+  const enabled = SD.quizzes;
+  const link    = SD.quizLink || "";
+  const file    = SD.quizFile || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Quizzes","Test your knowledge and track your progress.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon green"><i class="fa-solid fa-circle-question"></i></div>
+        <div>
+          <h2>Quizzes</h2>
+          <p>Regular quizzes help reinforce your understanding of RCM concepts.</p>
+        </div>
+      </div>
+      ${!enabled ? lockedHTML("Quizzes") : `
+      <div class="feature-section">
+        <h4>Available Quiz</h4>
+        ${link ? `<a href="${link}" target="_blank" class="action-btn gold"><i class="fa-solid fa-pen-to-square"></i> Start Quiz</a>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>No quiz link added yet. Check back soon.</p>"}
+      </div>
+      ${file ? `<div class="feature-section"><h4>Quiz Material</h4>${fileCard(file,"Download Quiz Sheet")}</div>` : ""}
+      `}
+    </div>`;
+}
+
+// ── ASSIGNMENTS ───────────────────────────────────────────────────
+function pageAssignments(){
+  const enabled = SD.assignments;
+  const text    = SD.assignmentText || "";
+  const file    = SD.assignmentFile || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Assignments","Complete and submit your course assignments.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon blue"><i class="fa-solid fa-file-lines"></i></div>
+        <div>
+          <h2>Assignments</h2>
+          <p>Submit assignments on time to maintain your progress.</p>
+        </div>
+      </div>
+      ${!enabled ? lockedHTML("Assignments") : `
+      <div class="feature-section">
+        <h4>Assignment Instructions</h4>
+        ${text ? `<div class="info-row"><i class="fa-solid fa-clipboard-list"></i><span>${text}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>No assignment posted yet.</p>"}
+      </div>
+      ${file ? `<div class="feature-section"><h4>Assignment File</h4>${fileCard(file,"Download Assignment")}</div>` : ""}
+      `}
+    </div>`;
+}
+
+// ── TICKETS ───────────────────────────────────────────────────────
+function pageTickets(){
+  const user = auth.currentUser;
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Support Tickets","Raise issues and track your support requests.")}
+    <div class="feature-page" style="max-width:900px;">
+
+      <div class="feature-section">
+        <h4>Raise a New Ticket</h4>
+        <div class="ticket-form" id="ticketForm">
+          <label>Subject</label>
+          <input type="text" id="tk_subject" placeholder="Brief description of your issue">
+          <label>Priority</label>
+          <select id="tk_priority">
+            <option value="Normal">Normal</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+          <label>Details</label>
+          <textarea id="tk_details" placeholder="Describe your issue in detail..."></textarea>
+          <div class="profile-msg" id="tkMsg"></div>
+          <button class="action-btn gold" onclick="submitTicket()">
+            <i class="fa-solid fa-paper-plane"></i> Submit Ticket
+          </button>
+        </div>
+      </div>
+
+      <div class="feature-section">
+        <h4>My Tickets</h4>
+        <div id="myTicketsList"><p style="color:rgba(255,255,255,.4);font-size:13px;">Loading your tickets...</p></div>
+      </div>
+
+    </div>`;
+
+  loadMyTickets();
+}
+
+async function submitTicket(){
+  const user    = auth.currentUser;
+  const subject = document.getElementById("tk_subject").value.trim();
+  const details = document.getElementById("tk_details").value.trim();
+  const priority= document.getElementById("tk_priority").value;
+  const msgEl   = document.getElementById("tkMsg");
+
+  if(!subject || !details){
+    msgEl.textContent="Please fill in subject and details.";
+    msgEl.className="profile-msg err"; msgEl.style.display="block"; return;
+  }
+
+  try{
+    await db.collection("tickets").add({
+      email:     user.email,
+      uid:       user.uid,
+      studentName: SD.firstName ? SD.firstName+" "+(SD.lastName||"") : user.email,
+      subject,
+      message:   details,
+      priority,
+      status:    "Open",
+      createdAt: new Date().toISOString()
+    });
+    msgEl.textContent="Ticket submitted successfully ✅";
+    msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    document.getElementById("tk_subject").value="";
+    document.getElementById("tk_details").value="";
+    showToast("Ticket raised ✅");
+    loadMyTickets();
+  }catch(err){
+    msgEl.textContent="Error: "+err.message;
+    msgEl.className="profile-msg err"; msgEl.style.display="block";
+  }
+}
+
+async function loadMyTickets(){
+  const user = auth.currentUser;
+  const area = document.getElementById("myTicketsList");
+  if(!area) return;
+  try{
+    const snap = await db.collection("tickets")
+      .where("uid","==",user.uid)
+      .get();
+
+    if(snap.empty){
+      area.innerHTML="<p style='color:rgba(255,255,255,.4);font-size:13px;'>No tickets raised yet.</p>";
+      return;
+    }
+
+    const docs = [];
+    snap.forEach(d => docs.push({id:d.id,...d.data()}));
+    docs.sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+
+    let html = "";
+    docs.forEach(t=>{
+      const pillC = t.status==="Resolved"?"pill-green": t.status==="In Progress"?"pill-yellow":"pill-blue";
+      const safeId = t.id;
+      html += `
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px;">
+            <span style="font-size:13.5px;font-weight:700;">${escapeHTML(t.subject)||"—"}</span>
+            <span class="status-pill ${pillC}">${escapeHTML(t.status)||"Open"}</span>
+          </div>
+
+          <p style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.6;">${escapeHTML(t.message)||""}</p>
+          <p style="font-size:11px;color:rgba(255,255,255,.35);margin-top:6px;">Priority: ${escapeHTML(t.priority)||"Normal"} · ${(t.createdAt||"").split("T")[0]}</p>
+
+          <div id="replies_${safeId}" style="margin-top:12px;">
+            <p style="color:rgba(255,255,255,.35);font-size:12px;">Loading replies...</p>
+          </div>
+
+          <div class="ticket-form" style="margin-top:12px;">
+            <label>Reply to this ticket</label>
+            <textarea id="reply_${safeId}" placeholder="Type your reply..." style="min-height:58px;margin-bottom:8px;"></textarea>
+            <div class="profile-msg" id="replyMsg_${safeId}"></div>
+            <button class="action-btn gold" onclick="sendTicketReply('${safeId}')">
+              <i class="fa-solid fa-reply"></i> Send Reply
+            </button>
+          </div>
+        </div>`;
+    });
+    area.innerHTML = html;
+    docs.forEach(t => loadTicketReplies(t.id));
+  }catch(e){
+    area.innerHTML=`<p style='color:#ff7070;font-size:13px;'>Error loading tickets: ${e.message}</p>`;
+  }
+}
+
+async function loadTicketReplies(ticketId){
+  const area = document.getElementById("replies_"+ticketId);
+  if(!area) return;
+  try{
+    const snap = await db.collection("tickets")
+      .doc(ticketId)
+      .collection("replies")
+      .get();
+
+    if(snap.empty){
+      area.innerHTML = "<p style='color:rgba(255,255,255,.35);font-size:12px;'>No replies yet.</p>";
+      return;
+    }
+
+    const replies = [];
+    snap.forEach(d => replies.push({id:d.id,...d.data()}));
+    replies.sort((a,b)=> (a.createdAt||"").localeCompare(b.createdAt||""));
+
+    let html = `<div style="border-top:1px solid rgba(255,255,255,.1);padding-top:10px;">
+      <p style="font-size:12px;font-weight:700;color:#00c6ff;margin-bottom:8px;">Replies</p>`;
+
+    replies.forEach(r=>{
+      const isStudent = r.senderRole === "student";
+      html += `
+        <div style="background:${isStudent?"rgba(0,198,255,.08)":"rgba(255,179,0,.10)"};border:1px solid ${isStudent?"rgba(0,198,255,.18)":"rgba(255,179,0,.22)"};border-radius:10px;padding:10px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:5px;">
+            <b style="font-size:12px;color:${isStudent?"#00c6ff":"#ffb300"};">${isStudent?"You":"Admin"}</b>
+            <span style="font-size:10.5px;color:rgba(255,255,255,.35);">${(r.createdAt||"").replace("T"," ").slice(0,16)}</span>
+          </div>
+          <p style="font-size:12px;color:rgba(255,255,255,.72);line-height:1.55;">${escapeHTML(r.message)}</p>
+        </div>`;
+    });
+
+    html += `</div>`;
+    area.innerHTML = html;
+  }catch(e){
+    area.innerHTML = `<p style='color:#ff7070;font-size:12px;'>Error loading replies: ${e.message}</p>`;
+  }
+}
+
+async function sendTicketReply(ticketId){
+  const user = auth.currentUser;
+  const txt  = document.getElementById("reply_"+ticketId);
+  const msg  = document.getElementById("replyMsg_"+ticketId);
+  if(!user || !txt || !msg) return;
+
+  const reply = txt.value.trim();
+  if(!reply){
+    msg.textContent = "Please type your reply.";
+    msg.className = "profile-msg err";
+    msg.style.display = "block";
+    return;
+  }
+
+  try{
+    await db.collection("tickets")
+      .doc(ticketId)
+      .collection("replies")
+      .add({
+        uid: user.uid,
+        email: user.email || "",
+        senderRole: "student",
+        message: reply,
+        createdAt: new Date().toISOString()
+      });
+
+    await db.collection("tickets").doc(ticketId).set({
+      status: "Open",
+      lastReplyBy: "student",
+      updatedAt: new Date().toISOString()
+    }, {merge:true});
+
+    txt.value = "";
+    msg.textContent = "Reply sent successfully ✅";
+    msg.className = "profile-msg ok";
+    msg.style.display = "block";
+    showToast("Reply sent ✅");
+    loadTicketReplies(ticketId);
+    setTimeout(()=>{ msg.style.display="none"; }, 3000);
+  }catch(e){
+    msg.textContent = "Error: " + e.message;
+    msg.className = "profile-msg err";
+    msg.style.display = "block";
+  }
+}
+
+// ── RESUME BUILDER ────────────────────────────────────────────────
+function pageResumeBuilder(){
+  const enabled = SD.resumeBuilder;
+  const text    = SD.resumeText || "";
+  const file    = SD.resumeFile || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Resume Builder","Build a professional ATS-friendly resume.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon gold" style="background:linear-gradient(135deg,#ff8c00,#ffb300);"><i class="fa-solid fa-file-word"></i></div>
+        <div>
+          <h2>Resume Builder</h2>
+          <p>Create a standout resume tailored for RCM and healthcare IT roles.</p>
+        </div>
+      </div>
+      ${!enabled ? lockedHTML("Resume Builder") : `
+      ${text ? `<div class="feature-section"><h4>Notes from Admin</h4><div class="info-row"><i class="fa-solid fa-note-sticky"></i><span>${text}</span></div></div>` : ""}
+      ${file ? `<div class="feature-section"><h4>Resume Template</h4>${fileCard(file,"Download Resume Template")}</div>` : ""}
+      <div class="feature-section">
+        <h4>Resume Tips</h4>
+        <div class="info-row"><i class="fa-solid fa-check"></i><span>Use keywords from the job description (ICD-10, CPT, AR, denial management).</span></div>
+        <div class="info-row"><i class="fa-solid fa-check"></i><span>Keep your resume to one page for entry-level roles.</span></div>
+        <div class="info-row"><i class="fa-solid fa-check"></i><span>Quantify achievements: "Reduced claim denials by 20%".</span></div>
+        <div class="info-row"><i class="fa-solid fa-check"></i><span>Use a clean, ATS-compatible format — no tables or text boxes.</span></div>
+      </div>
+      `}
+    </div>`;
+}
+
+// ── ANNOUNCEMENTS ─────────────────────────────────────────────────
+function pageAnnouncements(){
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Announcements","Latest updates from Nandan RCM.")}
+    <div class="feature-page" style="max-width:800px;">
+      <div id="announcementsList"><p style="color:rgba(255,255,255,.4);font-size:13px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading announcements...</p></div>
+    </div>`;
+  loadAnnouncements();
+}
+
+async function loadAnnouncements(){
+  const area = document.getElementById("announcementsList");
+  try{
+    const snap = await db.collection("announcements")
+      .orderBy("createdAt","desc")
+      .limit(20)
+      .get()
+      .catch(()=> db.collection("announcements").limit(20).get());
+
+    // Also check student-specific announcement
+    let studentAnn = "";
+    if(SD.announcements && SD.announcementText){
+      studentAnn = `
+        <div style="background:rgba(255,179,0,.10);border:1px solid rgba(255,179,0,.25);border-radius:14px;padding:16px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <i class="fa-solid fa-bullhorn" style="color:#ffb300;"></i>
+            <span style="font-weight:700;color:#ffb300;">Personal Announcement</span>
+          </div>
+          <p style="font-size:13px;color:rgba(255,255,255,.82);">${SD.announcementText}</p>
+        </div>`;
+    }
+
+    if(snap.empty && !studentAnn){
+      area.innerHTML=`<div class="locked-state"><i class="fa-solid fa-bullhorn"></i><h3>No Announcements Yet</h3><p>Check back soon for updates from your admin.</p></div>`;
+      return;
+    }
+
+    let html = studentAnn;
+    snap.forEach(doc=>{
+      const d = doc.data();
+      const priorityColor = d.priority==="urgent"?"#ff7070": d.priority==="important"?"#ffb300":"rgba(255,255,255,.85)";
+      html += `
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:14px;padding:16px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <i class="fa-solid fa-bullhorn" style="color:${priorityColor};"></i>
+            <span style="font-weight:700;color:${priorityColor};">${d.title||"Announcement"}</span>
+            ${d.priority&&d.priority!=="normal"?`<span class="status-pill ${d.priority==="urgent"?"pill-red":"pill-yellow"}">${d.priority}</span>`:""}
+          </div>
+          <p style="font-size:13px;color:rgba(255,255,255,.75);">${d.message||d.body||""}</p>
+          <p style="font-size:11px;color:rgba(255,255,255,.35);margin-top:8px;">${(d.createdAt||"").split("T")[0]}</p>
+        </div>`;
+    });
+    area.innerHTML = html;
+  }catch(e){
+    area.innerHTML=`<p style='color:#ff7070;font-size:13px;'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── TRAINER SUPPORT ───────────────────────────────────────────────
+function pageTrainerSupport(){
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Doubt Chat","Chat with Nandan RCM support team instantly.")}
+    <div class="feature-page" style="max-width:760px;">
+      <div class="feature-hero">
+        <div class="feature-hero-icon blue"><i class="fa-solid fa-comments"></i></div>
+        <div>
+          <h2>Doubt Chat</h2>
+          <p>Contact Nandan RCM through WhatsApp or Telegram bot.</p>
+        </div>
+      </div>
+
+      <div class="feature-section">
+        <h4>Instant Chat Support</h4>
+        <div class="support-link-grid">
+          <a class="support-link-card" href="https://wa.me/919490369957" target="_blank">
+            <i class="fa-brands fa-whatsapp"></i>
+            <div><h3>WhatsApp Support</h3><p>94903 69957</p></div>
+          </a>
+          <a class="support-link-card" href="https://t.me/NandanRCM_bot" target="_blank">
+            <i class="fa-brands fa-telegram"></i>
+            <div><h3>Telegram Bot</h3><p>@NandanRCM_bot</p></div>
+          </a>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── RECORDINGS / NOTES ───────────────────────────────────────────
+function pageRecordingsNotes(){
+  const enabled = SD.recordingsNotes || SD.recordings || SD.notesAccess || SD.trainerSupport;
+  const notes   = SD.recordingsNotesText || SD.recordingNotes || SD.notesText || SD.trainerNotes || "";
+  const link    = SD.recordingLink || SD.recordingsLink || "";
+  const file    = SD.recordingFile || SD.notesFile || SD.recordingsNotesFile || SD.trainerFile || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Recordings/Notes","Access class recordings, notes, and study resources.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon purple"><i class="fa-solid fa-chalkboard-user"></i></div>
+        <div>
+          <h2>Recordings/Notes</h2>
+          <p>View shared class recordings and download notes provided by admin.</p>
+        </div>
+      </div>
+      ${!enabled ? lockedHTML("Recordings/Notes") : `
+      <div class="feature-section">
+        <h4>Class Recordings</h4>
+        ${link ? `<a href="${link}" target="_blank" class="action-btn gold"><i class="fa-solid fa-play"></i> Open Recordings</a>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>Recording link will be shared here by admin.</p>"}
+      </div>
+      <div class="feature-section">
+        <h4>Notes</h4>
+        ${notes ? `<div class="info-row"><i class="fa-solid fa-note-sticky"></i><span>${notes}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>Notes will be updated soon.</p>"}
+        ${file ? fileCard(file,"Download Notes") : ""}
+      </div>
+      `}
+    </div>`;
+}
+
+// ── SCHEDULE ──────────────────────────────────────────────────────
+function pageSchedule(){
+  const enabled = SD.scheduleAccess;
+  const text    = SD.scheduleText || "";
+  const file    = SD.scheduleFile || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Schedule","Your upcoming class schedule.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon green"><i class="fa-solid fa-calendar-days"></i></div>
+        <div>
+          <h2>Class Schedule</h2>
+          <p>Stay up to date with your upcoming sessions and timings.</p>
+        </div>
+      </div>
+
+      ${!enabled ? lockedHTML("Schedule") : `
+      <div class="feature-section">
+        <h4>Schedule Details</h4>
+        ${text ? `<div class="info-row"><i class="fa-solid fa-calendar-check"></i><span>${text}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>Schedule will be updated by your admin soon.</p>"}
+      </div>
+      ${file ? `<div class="feature-section"><h4>Schedule File</h4>${fileCard(file,"Download Schedule")}</div>` : ""}
+      `}
+    </div>`;
+}
+
+// ── ATTENDANCE ───────────────────────────────────────────────────
+let attendanceMonth = new Date().getMonth();
+let attendanceYear  = new Date().getFullYear();
+let attendanceMap   = {};
+
+function pageAttendance(){
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Attendance","Mark and view your attendance date-wise.")}
+    <div class="feature-page" style="max-width:960px;">
+      <div class="feature-hero">
+        <div class="feature-hero-icon green"><i class="fa-solid fa-user-check"></i></div>
+        <div>
+          <h2>My Attendance</h2>
+          <p>Select the date and mark your own attendance. Marked dates will be saved to Firebase.</p>
+        </div>
+      </div>
+
+      <div class="feature-section">
+        <h4>Attendance Calendar</h4>
+        <div class="attendance-month-bar">
+          <button class="attendance-nav-btn" onclick="changeAttendanceMonth(-1)"><i class="fa-solid fa-angle-left"></i> Previous</button>
+          <h3 id="attendanceMonthTitle"></h3>
+          <button class="attendance-nav-btn" onclick="changeAttendanceMonth(1)">Next <i class="fa-solid fa-angle-right"></i></button>
+        </div>
+        <div id="attendanceStatus" style="font-size:12.5px;color:rgba(255,255,255,.55);margin-bottom:10px;"></div>
+        <div id="attendanceCalendar"></div>
+      </div>
+    </div>`;
+
+  loadAttendanceDates();
+}
+
+function attendanceDateKey(y,m,d){
+  return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+
+function renderAttendanceCalendar(){
+  const monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const title=document.getElementById("attendanceMonthTitle");
+  const cal=document.getElementById("attendanceCalendar");
+  if(!title || !cal) return;
+
+  title.textContent = `${monthNames[attendanceMonth]} ${attendanceYear}`;
+  const firstDay = new Date(attendanceYear, attendanceMonth, 1).getDay();
+  const daysInMonth = new Date(attendanceYear, attendanceMonth+1, 0).getDate();
+  const today = new Date();
+  const todayKey = attendanceDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+  let html = `<div class="attendance-grid">`;
+  dayNames.forEach(d=> html += `<div class="day-name">${d}</div>`);
+  for(let i=0;i<firstDay;i++) html += `<div class="attendance-day empty"></div>`;
+
+  for(let d=1; d<=daysInMonth; d++){
+    const key = attendanceDateKey(attendanceYear, attendanceMonth, d);
+    const isToday = key === todayKey;
+    const isFuture = new Date(attendanceYear, attendanceMonth, d) > new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const marked = attendanceMap[key];
+    const markedStatus = typeof marked === "string" ? marked : (marked ? "Present" : "");
+    html += `
+      <div class="attendance-day ${isToday ? "today" : ""}">
+        <div class="attendance-date">${d}</div>
+        ${markedStatus
+          ? `<div class="attendance-marked" style="${markedStatus==="Absent"?"background:rgba(255,60,60,.15);color:#ff7070;border-color:rgba(255,60,60,.32);":""}"><i class="fa-solid ${markedStatus==="Absent"?"fa-xmark":"fa-check"}"></i> ${markedStatus}</div>`
+          : isFuture
+            ? `<div class="attendance-disabled">Upcoming</div>`
+            : `<button class="attendance-mark-btn" onclick="markAttendance('${key}')">Mark Present</button>`
+        }
+      </div>`;
+  }
+  html += `</div>`;
+  cal.innerHTML = html;
+}
+
+function changeAttendanceMonth(step){
+  attendanceMonth += step;
+  if(attendanceMonth < 0){ attendanceMonth = 11; attendanceYear--; }
+  if(attendanceMonth > 11){ attendanceMonth = 0; attendanceYear++; }
+  loadAttendanceDates();
+}
+
+async function loadAttendanceDates(){
+  const user = auth.currentUser;
+  const status = document.getElementById("attendanceStatus");
+  attendanceMap = {};
+  renderAttendanceCalendar();
+  if(!user) return;
+  if(status) status.textContent = "Loading attendance...";
+
+  const monthStart = attendanceDateKey(attendanceYear, attendanceMonth, 1);
+  const monthEnd   = attendanceDateKey(attendanceYear, attendanceMonth, new Date(attendanceYear, attendanceMonth+1, 0).getDate());
+  try{
+    // Simple query only by uid, then date-filter in JavaScript.
+    // This avoids Firestore composite index errors.
+    const snap = await db.collection("attendance")
+      .where("uid","==",user.uid)
+      .get();
+
+    snap.forEach(doc=>{
+      const d = doc.data();
+      if(d.date && d.date >= monthStart && d.date <= monthEnd){
+        attendanceMap[d.date] = d.status || "Present";
+      }
+    });
+
+    if(status) status.textContent = "Click Mark Present on the correct class date.";
+    renderAttendanceCalendar();
+  }catch(e){
+    if(status) status.innerHTML = `<span style="color:#ff7070;">Error loading attendance: ${e.message}</span>`;
+  }
+}
+
+async function markAttendance(dateKey){
+  const user = auth.currentUser;
+  if(!user){ showToast("Please login again."); return; }
+  try{
+    await db.collection("attendance").doc(`${user.uid}_${dateKey}`).set({
+      uid:user.uid,
+      email:user.email || "",
+      studentName: SD.firstName ? `${SD.firstName} ${SD.lastName||""}`.trim() : (user.displayName || user.email || "Student"),
+      date:dateKey,
+      status:"Present",
+      markedAt:new Date().toISOString()
+    },{merge:true});
+    attendanceMap[dateKey]=true;
+    renderAttendanceCalendar();
+    showToast("Attendance marked ✅");
+  }catch(e){
+    showToast("Attendance error: "+e.message);
+  }
+}
+
+// ── MY COURSES ────────────────────────────────────────────────────
+function pageMyCourses(){
+  const enabled    = SD.myCourses;
+  const courseName = SD.courseName || "";
+  const access     = SD.courseAccess;
+  const payment    = SD.paymentStatus || "Pending";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("My Courses","Your enrolled RCM training course.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon blue"><i class="fa-solid fa-book-open"></i></div>
+        <div>
+          <h2>My Courses</h2>
+          <p>Your active course enrollment and progress at Nandan RCM Solutions.</p>
+        </div>
+      </div>
+      ${!access && !enabled ? lockedHTML("My Courses") : `
+      <div class="feature-section">
+        <h4>Enrolled Course</h4>
+        ${courseName ? `
+          <div class="info-row"><i class="fa-solid fa-graduation-cap"></i><span style="font-weight:700;font-size:14px;">${courseName}</span></div>` : ""}
+        <div class="info-row">
+          <i class="fa-solid fa-lock-open"></i>
+          <span>Course Access: <span class="status-pill ${access?"pill-green":"pill-red"}">${access?"Enabled":"Disabled"}</span></span>
+        </div>
+        <div class="info-row">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+          <span>Payment: <span class="status-pill ${payment==="Paid"?"pill-green": payment==="Failed"?"pill-red":"pill-yellow"}">${payment}</span></span>
+        </div>
+        <div class="info-row"><i class="fa-solid fa-book-open"></i><span>Enrolled Courses: ${SD.enrolledCourses||0}</span></div>
+        <div class="info-row"><i class="fa-solid fa-chart-bar"></i><span>Classes Attended: ${SD.classesAttended||0}</span></div>
+      </div>
+      `}
+    </div>`;
+}
+
+// ── WEBINARS ──────────────────────────────────────────────────────
+function pageWebinars(){
+  const enabled = SD.webinars;
+  const text    = SD.webinarText || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Webinars","Attend expert webinars and masterclasses.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon purple"><i class="fa-solid fa-person-chalkboard"></i></div>
+        <div><h2>Webinars</h2><p>Expert-led webinars on RCM industry trends and best practices.</p></div>
+      </div>
+      ${!enabled ? lockedHTML("Webinars") : `
+      <div class="feature-section">
+        <h4>Upcoming Webinar</h4>
+        ${text ? `<div class="info-row"><i class="fa-solid fa-calendar-days"></i><span>${text}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>Webinar details will be updated soon.</p>"}
+      </div>
+      `}
+    </div>`;
+}
+
+// ── INTERNSHIPS ───────────────────────────────────────────────────
+function pageInternships(){
+  const enabled = SD.internships;
+  const text    = SD.internshipText || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Internships","Explore internship and placement opportunities.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon orange"><i class="fa-solid fa-user-graduate"></i></div>
+        <div><h2>Internships</h2><p>Gain real-world experience through curated RCM internship programs.</p></div>
+      </div>
+      ${!enabled ? lockedHTML("Internships") : `
+      <div class="feature-section">
+        <h4>Internship Details</h4>
+        ${text ? `<div class="info-row"><i class="fa-solid fa-briefcase"></i><span>${text}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>Internship details will be posted here by admin.</p>"}
+      </div>
+      `}
+    </div>`;
+}
+
+// ── DOCUMENTS ─────────────────────────────────────────────────────
+function pageDocuments(){
+  const enabled = SD.documents;
+  const text    = SD.documentText || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Documents","Access your important course documents.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon green"><i class="fa-solid fa-folder-open"></i></div>
+        <div><h2>Documents</h2><p>All your important files, study materials and resources in one place.</p></div>
+      </div>
+      ${!enabled ? lockedHTML("Documents") : `
+      <div class="feature-section">
+        <h4>Shared Documents</h4>
+        ${text ? `<div class="info-row"><i class="fa-solid fa-file"></i><span>${text}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>No documents shared yet.</p>"}
+      </div>
+      `}
+    </div>`;
+}
+
+// ── JOB PORTAL ────────────────────────────────────────────────────
+function pageJobPortal(){
+  const enabled = SD.jobPortal;
+  const text    = SD.jobPortalText || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Job Portal","Explore RCM job openings and placements.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon orange"><i class="fa-solid fa-briefcase"></i></div>
+        <div><h2>Job Portal</h2><p>Curated job opportunities in RCM, medical billing, and coding.</p></div>
+      </div>
+      ${!enabled ? lockedHTML("Job Portal") : `
+      <div class="feature-section">
+        <h4>Job Listings</h4>
+        ${text ? `<div class="info-row"><i class="fa-solid fa-briefcase"></i><span>${text}</span></div>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>Job listings will be posted here soon.</p>"}
+      </div>
+      `}
+    </div>`;
+}
+
+// ── AI MOCK INTERVIEW ─────────────────────────────────────────────
+function pageAiMock(){
+  const enabled = SD.aiMockInterview;
+  const text    = SD.aiMockInterviewText || "";
+
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("AI Mock Interview","Practice with AI-powered interview simulation.")}
+    <div class="feature-page">
+      <div class="feature-hero">
+        <div class="feature-hero-icon purple" style="background:linear-gradient(135deg,#7c3aed,#c084fc);"><i class="fa-solid fa-robot"></i></div>
+        <div><h2>AI Mock Interview</h2><p>Get instant feedback on your answers using AI-powered interview practice.</p></div>
+      </div>
+      ${!enabled ? lockedHTML("AI Mock Interview") : `
+      <div class="feature-section">
+        <h4>Practice Link</h4>
+        ${text ? `<a href="${text}" target="_blank" class="action-btn gold"><i class="fa-solid fa-robot"></i> Start AI Interview</a>` : "<p style='color:rgba(255,255,255,.5);font-size:13px;'>AI interview link will be shared soon.</p>"}
+      </div>
+      `}
+    </div>`;
+}
+
+// ── PAYMENTS ──────────────────────────────────────────────────────
+function openPayments(el){
+  if(el) setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Payments","Manage course payments and invoices.")}
+    <div class="payment-layout">
+      <div class="payment-sidebar">
+        <div class="payment-menu active" onclick="showPayCourseFee(this)">💳 Pay Course Fee</div>
+        <div class="payment-menu" onclick="showPaymentHistory(this)">📄 Payment History</div>
+      </div>
+      <div id="paymentContent" class="payment-content"></div>
+    </div>`;
+  showPayCourseFee();
+}
+
+function showPayCourseFee(el){
+  document.querySelectorAll(".payment-menu").forEach(m=>m.classList.remove("active"));
+  if(el) el.classList.add("active");
+  const payment = SD.paymentStatus || "Pending";
+  const pillC   = payment==="Paid"?"pill-green": payment==="Failed"?"pill-red":"pill-yellow";
+
+  document.getElementById("paymentContent").innerHTML = `
+    <h2 style="margin-bottom:6px;">Pay Course Fee</h2>
+    <p style="color:rgba(255,255,255,.6);font-size:13px;margin-bottom:20px;">Complete your payment to unlock full course access.</p>
+
+    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;margin-bottom:18px;">
+      <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px;">COURSE FEE</p>
+      <h1 style="color:#ffb300;font-size:36px;">₹2,999</h1>
+      <p style="font-size:12px;color:rgba(255,255,255,.5);margin-top:8px;">
+        Payment Status: <span class="status-pill ${pillC}">${payment}</span>
+      </p>
+    </div>
+
+    ${payment==="Paid"
+      ? `<div class="info-row"><i class="fa-solid fa-circle-check" style="color:#2cff88;"></i><span style="color:#2cff88;font-weight:700;">Payment complete. Full course access is enabled.</span></div>`
+      : `<button class="action-btn gold" onclick="startRazorpayPayment()"><i class="fa-solid fa-lock-open"></i> Pay Now ₹2,999</button>`
+    }`;
+}
+
+function showPaymentHistory(el){
+  document.querySelectorAll(".payment-menu").forEach(m=>m.classList.remove("active"));
+  if(el) el.classList.add("active");
+  document.getElementById("paymentContent").innerHTML = `
+    <h2 style="margin-bottom:16px;">Payment History</h2>
+    <p style="color:rgba(255,255,255,.45);font-size:13px;">No payment records found.</p>`;
+}
+
+function startRazorpayPayment(){
+  window.location.href = "https://rzp.io/r/YOUR_PAYMENT_LINK";
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────
+function openProfile(el){
+  if(el && el.classList){ setActive(el); }
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("My Profile","Manage your account settings and privacy.")}
+    <div class="profile-tabs">
+      <button class="profile-tab-btn"          onclick="showPersonalInfo()">Personal Info</button>
+      <button class="profile-tab-btn blue-btn" onclick="showPrivacy()">Privacy</button>
+    </div>
+    <div id="profileContent"></div>`;
+  showPersonalInfo();
+}
+
+async function showPersonalInfo(){
+  document.getElementById("profileContent").innerHTML = `
+    <div class="profile-card">
+      <h3><i class="fa-solid fa-user" style="color:#00c6ff;margin-right:8px;"></i>Personal Information</h3>
+      <div class="profile-msg" id="profileMsg"></div>
+      <div class="form-row">
+        <div class="input-box"><label for="firstName">First Name</label><input type="text" id="firstName" placeholder="Enter first name"></div>
+        <div class="input-box"><label for="lastName">Last Name</label><input type="text" id="lastName" placeholder="Enter last name"></div>
+      </div>
+      <div class="input-box"><label for="email">Email Address</label><input type="email" id="email" placeholder="Enter email address"></div>
+      <div class="input-box"><label for="phone">Phone Number</label><input type="text" id="phone" placeholder="Enter phone number"></div>
+      <button class="save-btn" id="saveBtn" onclick="saveProfile()">Save Changes <i class="fa-solid fa-floppy-disk"></i></button>
+    </div>`;
+
+  const user = auth.currentUser;
+  if(user && user.email) document.getElementById("email").value = user.email;
+  if(user){
+    try{
+      const snap = await db.collection("students").doc(user.uid).get();
+      if(snap.exists){
+        const d = snap.data();
+        if(d.firstName) document.getElementById("firstName").value = d.firstName;
+        if(d.lastName)  document.getElementById("lastName").value  = d.lastName;
+        if(d.email)     document.getElementById("email").value     = d.email;
+        if(d.phone)     document.getElementById("phone").value     = d.phone;
+      }
+    }catch(e){ console.warn(e.message); }
+  }
+}
+
+function showPrivacy(){
+  document.getElementById("profileContent").innerHTML = `
+    <div class="profile-card">
+      <h3><i class="fa-solid fa-lock" style="color:#00c6ff;margin-right:8px;"></i>Privacy &amp; Security</h3>
+      <div class="profile-msg" id="pwMsg"></div>
+      <div class="input-box"><label for="newPassword">New Password</label><input type="password" id="newPassword" placeholder="Enter new password (min 6 chars)"></div>
+      <div class="input-box"><label for="confirmPassword">Confirm New Password</label><input type="password" id="confirmPassword" placeholder="Re-enter new password"></div>
+      <button class="save-btn" id="pwBtn" onclick="changePassword()">Change Password <i class="fa-solid fa-key"></i></button>
+    </div>`;
+}
+
+function showProfileMsg(msg, type){
+  const el = document.getElementById("profileMsg");
+  if(!el) return;
+  el.textContent = msg; el.className="profile-msg "+type; el.style.display="block";
+  if(type==="ok") setTimeout(()=>{ el.style.display="none"; }, 3500);
+}
+
+async function saveProfile(){
+  const user = auth.currentUser;
+  if(!user){ showProfileMsg("Session expired.","err"); return; }
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName  = document.getElementById("lastName").value.trim();
+  const email     = document.getElementById("email").value.trim();
+  const phone     = document.getElementById("phone").value.trim();
+  if(!firstName){ showProfileMsg("First name is required.","err"); return; }
+  const btn = document.getElementById("saveBtn");
+  const orig = btn.innerHTML;
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+  try{
+    await db.collection("students").doc(user.uid).set(
+      {firstName,lastName,email,phone,updatedAt:new Date().toISOString()},{merge:true});
+    SD.firstName=firstName; SD.lastName=lastName;
+    document.getElementById("sidebarName").textContent   = firstName;
+    document.getElementById("sidebarAvatar").textContent = firstName.charAt(0).toUpperCase();
+    btn.innerHTML='<i class="fa-solid fa-check"></i> Saved!';
+    showProfileMsg("Profile updated successfully ✅","ok");
+    showToast("Profile updated ✅");
+    setTimeout(()=>{ btn.disabled=false; btn.innerHTML=orig; },2000);
+  }catch(err){
+    showProfileMsg("Error: "+err.message,"err");
+    btn.disabled=false; btn.innerHTML=orig;
+  }
+}
+
+function showPwMsg(msg,type){
+  const el=document.getElementById("pwMsg");
+  if(!el) return;
+  el.textContent=msg; el.className="profile-msg "+type; el.style.display="block";
+}
+
+async function changePassword(){
+  const user=auth.currentUser;
+  if(!user){ showPwMsg("Session expired.","err"); return; }
+  const newPw  = document.getElementById("newPassword").value;
+  const confPw = document.getElementById("confirmPassword").value;
+  if(!newPw)          { showPwMsg("Please enter a new password.","err"); return; }
+  if(newPw!==confPw)  { showPwMsg("Passwords do not match.","err"); return; }
+  if(newPw.length<6)  { showPwMsg("Minimum 6 characters required.","err"); return; }
+  const btn=document.getElementById("pwBtn"); const orig=btn.innerHTML;
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Updating...';
+  try{
+    await user.updatePassword(newPw);
+    document.getElementById("newPassword").value="";
+    document.getElementById("confirmPassword").value="";
+    btn.innerHTML='<i class="fa-solid fa-check"></i> Done!';
+    showPwMsg("Password changed successfully ✅","ok");
+    showToast("Password changed ✅");
+    setTimeout(()=>{ btn.disabled=false; btn.innerHTML=orig; },2000);
+  }catch(err){ showPwMsg("Error: "+err.message,"err"); btn.disabled=false; btn.innerHTML=orig; }
+}
+
+// ── LOGOUT ────────────────────────────────────────────────────────
+function logout(){
+  auth.signOut().then(()=>{ window.location.href="login.html"; });
+}
+</script>
+</body>
+</html>

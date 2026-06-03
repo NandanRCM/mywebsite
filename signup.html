@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nandan RCM – Sign Up</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+	apiKey:"AIzaSyBdMTgzZGI10Bu3z4dm-ZUSumxN50H7UjE",
+	authDomain:"nandan-rcm.firebaseapp.com",
+	projectId:"nandan-rcm",
+	appId:"1:418121831280:web:8f2eb7228971d0fbe7b5b5"
+});
+</script>
+
+<style>
+*{
+	margin:0;
+	padding:0;
+	box-sizing:border-box;
+	font-family:"Poppins",sans-serif;
+}
+
+body{
+	min-height:100vh;
+	background:
+	linear-gradient(rgba(0,6,51,.02),rgba(0,6,51,.02)),
+	url("images/signup.jpg");
+	background-size:cover;
+	background-position:center;
+	background-repeat:no-repeat;
+	display:flex;
+	align-items:center;
+	justify-content:flex-end;
+	padding-right:8%;
+	overflow:hidden;
+}
+
+.home-btn{
+	position:fixed;
+	top:24px;
+	left:24px;
+	width:52px;
+	height:52px;
+	border-radius:14px;
+	background:rgba(255,255,255,.08);
+	backdrop-filter:blur(8px);
+	border:1px solid rgba(255,255,255,.15);
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	color:#fff;
+	font-size:20px;
+	text-decoration:none;
+	z-index:999;
+	box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.home-btn:hover{
+	background:rgba(255,255,255,.14);
+}
+
+.signup-window{
+	width:400px;
+	padding:10px 20px 8px;
+	border-radius:26px;
+	background:rgba(255,255,255,.92);
+	backdrop-filter:blur(10px);
+	-webkit-backdrop-filter:blur(10px);
+	border:1px solid rgba(255,255,255,.45);
+	box-shadow:
+	0 25px 55px rgba(0,0,0,.35),
+	inset 0 1px 0 rgba(255,255,255,.75);
+	position:relative;
+	overflow:hidden;
+}
+
+.signup-window::before{
+	content:"";
+	position:absolute;
+	width:220px;
+	height:220px;
+	border-radius:50%;
+	background:rgba(37,99,235,.10);
+	top:-80px;
+	right:-80px;
+	filter:blur(20px);
+}
+
+.logo{
+	display:flex;
+	align-items:center;
+	gap:12px;
+	margin-bottom:4px;
+	position:relative;
+	z-index:1;
+}
+
+.logo-icon{
+	width:50px;
+	height:50px;
+	border-radius:15px;
+	background:linear-gradient(135deg,#0b3ea8,#00b7ff);
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	font-size:22px;
+	color:#fff;
+	box-shadow:0 8px 22px rgba(37,99,235,.35);
+}
+
+.logo-text h2{
+	font-size:25px;
+	font-weight:900;
+	color:#00112F;
+	line-height:1;
+}
+
+.logo-text h2 span{
+	color:#f5a800;
+}
+
+.logo-text p{
+	font-size:10px;
+	letter-spacing:2px;
+	color:#64748b;
+	margin-top:2px;
+}
+
+.signup-window h1{
+	font-size:20px;
+	font-weight:800;
+	color:#00112F;
+	margin-bottom:2px;
+	position:relative;
+	z-index:1;
+}
+
+.subtext{
+	font-size:11px;
+	color:#64748b;
+	margin-bottom:6px;
+	position:relative;
+	z-index:1;
+}
+
+.msg{
+	padding:10px 13px;
+	border-radius:12px;
+	font-size:12px;
+	font-weight:600;
+	margin-bottom:13px;
+	display:none;
+	position:relative;
+	z-index:1;
+}
+
+.msg.error{
+	background:#fef2f2;
+	border:1px solid #fecaca;
+	color:#dc2626;
+}
+
+.msg.success{
+	background:#f0fdf4;
+	border:1px solid #bbf7d0;
+	color:#16a34a;
+}
+
+.field{
+	position:relative;
+	margin-bottom:5px;
+	z-index:1;
+}
+
+.mobile-row{
+	display:flex;
+	gap:10px;
+	margin-bottom:5px;
+}
+
+.country-box{
+	width:110px;
+}
+
+.country-box select{
+	width:90%;
+	height:40px;
+	border-radius:15px;
+	border:1.5px solid #dbe2ea;
+	background:#f8fafc;
+	color:#011230;
+	font-size:13px;
+	font-weight:500;
+	padding:0 8px;
+	outline:none;
+	cursor:pointer;
+}
+
+.country-box select:focus{
+	border-color:#2563eb;
+	box-shadow:0 0 0 4px rgba(37,99,235,.10);
+	background:#fff;
+}
+
+.country-box option{
+	background:#ffffff;
+	color:#000633;
+}
+
+.mobile-field{
+	flex:1;
+	margin-bottom:0 !important;
+}
+
+.field i.fi{
+	position:absolute;
+	left:16px;
+	top:50%;
+	transform:translateY(-50%);
+	color:#94a3b8;
+	font-size:15px;
+}
+
+.field input{
+	width:100%;
+	height:40px;
+	border-radius:15px;
+	border:1.5px solid #dbe2ea;
+	background:#f8fafc;
+	padding:0 44px;
+	font-size:15px;
+        font-weight:500;
+	color:#00112F;
+	outline:none;
+	transition:.25s;
+}
+
+.field input:focus{
+	border-color:#2563eb;
+	background:#fff;
+	box-shadow:0 0 0 4px rgba(37,99,235,.10);
+}
+
+.field input::placeholder{
+        font-size:15px;
+	color:#9aa9bb;
+}
+
+.toggle-pw{
+	position:absolute;
+	right:14px;
+	top:50%;
+	transform:translateY(-50%);
+	background:none;
+	border:none;
+	cursor:pointer;
+	color:#94a3b8;
+	font-size:15px;
+}
+
+.toggle-pw:hover{
+	color:#2563eb;
+}
+
+.strength-bar{
+	height:4px;
+	background:#e2e8f0;
+	border-radius:6px;
+	margin-top:-7px;
+	margin-bottom:13px;
+	overflow:hidden;
+	position:relative;
+	z-index:1;
+}
+
+.strength-bar div{
+	height:100%;
+	width:0;
+	border-radius:6px;
+	transition:.3s;
+}
+
+.terms{
+	display:flex;
+	align-items:flex-start;
+	gap:9px;
+	margin-bottom:6px;
+	position:relative;
+	z-index:1;
+}
+
+.terms input{
+	margin-top:3px;
+	accent-color:#2563eb;
+}
+
+.terms label{
+	font-size:12px;
+	line-height:1.5;
+	color:#64748b;
+}
+
+.terms label a{
+	color:#2563eb;
+	font-weight:600;
+	text-decoration:none;
+}
+
+.signup-btn{
+	width:100%;
+	height:38px;
+	border:none;
+	border-radius:13px;
+	background:#f5b400;
+	color:#00112F;
+	font-size:14px;
+	font-weight:800;
+	cursor:pointer;
+	box-shadow:0 10px 24px rgba(245,180,0,.30);
+	transition:.25s;
+	margin-bottom:6px;
+	position:relative;
+	z-index:1;
+}
+
+.signup-btn:hover{
+	transform:translateY(-2px);
+	background:#ffbf00;
+}
+
+.divider{
+	display:flex;
+	align-items:center;
+	gap:12px;
+	font-size:12px;
+	color:#64748b;
+	margin-bottom:14px;
+	position:relative;
+	z-index:1;
+}
+
+.divider::before,
+.divider::after{
+	content:"";
+	flex:1;
+	height:1px;
+	background:#dbe2ea;
+}
+
+.google-btn{
+	width:100%;
+	height:44px;
+	border-radius:13px;
+	border:1.5px solid #dbe2ea;
+	background:#fff;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	gap:12px;
+	font-size:13px;
+	font-weight:700;
+	cursor:pointer;
+	transition:.25s;
+	margin-bottom:6px;
+	position:relative;
+	z-index:1;
+}
+
+.google-btn:hover{
+	background:#f7fbff;
+	border-color:#b7d4ff;
+}
+
+.google-btn img{
+	width:19px;
+}
+
+.login-link{
+	text-align:center;
+	font-size:12.5px;
+	color:#64748b;
+	position:relative;
+	z-index:1;
+}
+
+.login-link a{
+	color:#2563eb;
+	font-weight:700;
+	text-decoration:none;
+}
+
+@media(max-width:900px){
+	body{
+		justify-content:center;
+		padding:20px;
+		overflow:auto;
+	}
+
+	.signup-window{
+		width:100%;
+		max-width:450px;
+	}
+}
+</style>
+</head>
+
+<body>
+
+<a href="index.html" class="home-btn">
+	<i class="fa-solid fa-house"></i>
+</a>
+
+<div class="signup-window">
+
+	<div class="logo">
+		<div class="logo-icon">
+			<i class="fa-solid fa-graduation-cap"></i>
+		</div>
+
+		<div class="logo-text">
+			<h2>Nandan <span>RCM</span></h2>
+			<p>SOLUTIONS</p>
+		</div>
+	</div>
+
+	<h1>Create Account</h1>
+
+	<p class="subtext">
+		Join Nandan RCM Solutions and start your learning journey.
+	</p>
+
+	<div class="msg" id="msgBox"></div>
+
+	<div class="field">
+		<i class="fa-regular fa-user fi"></i>
+		<input type="text" id="fullName" placeholder="Full Name">
+	</div>
+
+	<div class="field">
+		<i class="fa-regular fa-envelope fi"></i>
+		<input type="email" id="email" placeholder="Email Address">
+	</div>
+
+	<div class="mobile-row">
+
+	<div class="country-box">
+		<select id="countryCode">
+			<option value="+91">🇮🇳 +91</option>
+			<option value="+1">🇺🇸 +1</option>
+			<option value="+44">🇬🇧 +44</option>
+			<option value="+61">🇦🇺 +61</option>
+			<option value="+971">🇦🇪 +971</option>
+			<option value="+65">🇸🇬 +65</option>
+		</select>
+	</div>
+
+	<div class="field mobile-field">
+		<i class="fa-solid fa-phone fi"></i>
+		<input type="tel"
+			   id="mobile"
+			   placeholder="Mobile Number">
+	</div>
+
+</div>
+<!-- RECAPTCHA -->
+<div id="recaptcha-container" style="margin-bottom:6px;"></div>
+
+<!-- SEND OTP BUTTON -->
+<button class="signup-btn"
+		type="button"
+		style="margin-bottom:8px;"
+		onclick="sendMobileOTP()">
+
+	Send OTP
+
+</button>
+
+<!-- OTP BOX -->
+
+<div class="field"
+	 id="otpBox"
+	 style="display:none;">
+
+	<i class="fa-solid fa-key fi"></i>
+
+	<input type="text"
+		   id="otp"
+		   placeholder="Enter OTP">
+
+</div>
+
+	<div class="field">
+		<i class="fa-solid fa-lock fi"></i>
+		<input type="password" id="password" placeholder="Password" oninput="checkStrength(this.value)">
+		<button class="toggle-pw" type="button" onclick="togglePw('password',this)">
+			<i class="fa-regular fa-eye"></i>
+		</button>
+	</div>
+
+	<div class="strength-bar">
+		<div id="strengthBar"></div>
+	</div>
+
+	<div class="field">
+		<i class="fa-solid fa-lock fi"></i>
+		<input type="password" id="confirmPassword" placeholder="Confirm Password">
+		<button class="toggle-pw" type="button" onclick="togglePw('confirmPassword',this)">
+			<i class="fa-regular fa-eye"></i>
+		</button>
+	</div>
+
+	<div class="terms">
+		<input type="checkbox" id="terms">
+		<label for="terms">
+			I agree to the <a href="#">Terms</a> & <a href="#">Privacy Policy</a>
+		</label>
+	</div>
+
+	<button class="signup-btn"
+		id="signupBtn"
+		onclick="handleSignup()"
+		disabled>
+
+	Sign Up
+
+</button>
+
+	<div class="divider">or</div>
+
+	<button class="google-btn" onclick="googleSignup()">
+		<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
+		Continue with Google
+	</button>
+
+	<div class="login-link">
+		Already have an account? <a href="login.html">Log In</a>
+	</div>
+
+</div>
+
+<script>
+function showMsg(text,type){
+	const b = document.getElementById("msgBox");
+	b.textContent = text;
+	b.className = "msg " + type;
+	b.style.display = "block";
+
+	if(type === "success"){
+		setTimeout(()=>{
+			b.style.display = "none";
+		},4000);
+	}
+}
+
+function togglePw(id,btn){
+	const inp = document.getElementById(id);
+	const isText = inp.type === "text";
+	inp.type = isText ? "password" : "text";
+	btn.querySelector("i").className =
+	isText ? "fa-regular fa-eye" : "fa-regular fa-eye-slash";
+}
+
+function checkStrength(val){
+	const bar = document.getElementById("strengthBar");
+
+	let score = 0;
+	if(val.length >= 8) score++;
+	if(/[A-Z]/.test(val)) score++;
+	if(/[0-9]/.test(val)) score++;
+	if(/[^A-Za-z0-9]/.test(val)) score++;
+
+	const map = [
+		{w:"0%", bg:"transparent"},
+		{w:"25%", bg:"#ef4444"},
+		{w:"50%", bg:"#f97316"},
+		{w:"75%", bg:"#eab308"},
+		{w:"100%", bg:"#22c55e"}
+	];
+
+	bar.style.width = map[score].w;
+	bar.style.background = map[score].bg;
+}
+
+/* MOBILE OTP */
+
+let phoneCredential = null;
+
+window.recaptchaVerifier =
+new firebase.auth.RecaptchaVerifier(
+	"recaptcha-container",
+	{
+		size:"normal"
+	}
+);
+
+async function sendMobileOTP(){
+
+	const mobile =
+	document.getElementById("mobile")
+	.value.trim();
+const countryCode =
+document.getElementById("countryCode").value;
+
+const fullMobile =
+countryCode + mobile;
+
+	if(!mobile){
+
+		return showMsg(
+			"Please enter mobile number.",
+			"error"
+		);
+	}
+
+	let phone =
+	mobile.startsWith("+")
+	? mobile
+	: "+91" + mobile;
+
+	try{
+
+		const confirmationResult =
+		await firebase.auth()
+		.signInWithPhoneNumber(
+			phone,
+			window.recaptchaVerifier
+		);
+
+		window.confirmationResult =
+		confirmationResult;
+
+		document.getElementById("otpBox")
+		.style.display = "block";
+
+		showMsg(
+			"OTP sent successfully.",
+			"success"
+		);
+
+	}catch(error){
+
+		showMsg(error.message,"error");
+	}
+}
+
+async function verifyMobileOTP(){
+
+	const otp =
+	document.getElementById("otp")
+	.value.trim();
+
+	if(!otp){
+
+		showMsg(
+			"Please enter OTP.",
+			"error"
+		);
+
+		return false;
+	}
+
+	try{
+
+		const result =
+		await window.confirmationResult
+		.confirm(otp);
+
+		phoneCredential =
+		firebase.auth.PhoneAuthProvider
+		.credential(
+
+			window.confirmationResult
+			.verificationId,
+
+			otp
+		);
+
+		document.getElementById("signupBtn")
+		.disabled = false;
+
+		showMsg(
+			"Mobile verified successfully.",
+			"success"
+		);
+
+		await result.user.delete();
+
+		return true;
+
+	}catch(error){
+
+		showMsg(
+			"Invalid OTP.",
+			"error"
+		);
+
+		return false;
+	}
+}
+
+async function handleSignup(){
+	const btn = document.getElementById("signupBtn");
+	const fullName = document.getElementById("fullName").value.trim();
+	const email = document.getElementById("email").value.trim();
+	const mobile = document.getElementById("mobile").value.trim();
+	const password = document.getElementById("password").value;
+	const confirm = document.getElementById("confirmPassword").value;
+	const agreed = document.getElementById("terms").checked;
+
+	if(!fullName) return showMsg("Please enter full name.","error");
+	if(!email) return showMsg("Please enter email.","error");
+	if(!/\S+@\S+\.\S+/.test(email)) return showMsg("Please enter a valid email.","error");
+	if(password.length < 6) return showMsg("Password must be at least 6 characters.","error");
+	if(password !== confirm) return showMsg("Passwords do not match.","error");
+	if(!agreed) return showMsg("Please accept terms.","error");
+
+
+const otpVerified =
+await verifyMobileOTP();
+
+if(!otpVerified){
+	return;
+}
+
+	btn.disabled = true;
+	btn.textContent = "Creating Account...";
+
+	try{
+		const cred = await firebase.auth().createUserWithEmailAndPassword(email,password);
+		const user = cred.user;
+
+await user.linkWithCredential(
+	phoneCredential
+);
+
+await user.sendEmailVerification();
+
+		await user.updateProfile({
+			displayName:fullName
+		});
+
+		await firebase.firestore()
+		.collection("students")
+		.doc(user.uid)
+		.set({
+			fullName,
+			email,
+			mobile: fullMobile,
+			role:"student",
+			createdAt:new Date().toISOString()
+		});
+
+		showMsg("Account created successfully!","success");
+
+		setTimeout(()=>{
+			alert(
+	"Account created successfully. Please verify your email before login."
+);
+
+window.location.href =
+"login.html";
+		},1500);
+
+	}catch(err){
+		let msg = err.message;
+
+		if(err.code === "auth/email-already-in-use"){
+			msg = "This email is already registered. Please log in.";
+		}
+
+		if(err.code === "auth/invalid-email"){
+			msg = "Invalid email address.";
+		}
+
+		showMsg(msg,"error");
+
+		btn.disabled = false;
+		btn.textContent = "Sign Up";
+	}
+}
+
+async function googleSignup(){
+	try{
+		const provider = new firebase.auth.GoogleAuthProvider();
+		const result = await firebase.auth().signInWithPopup(provider);
+		const user = result.user;
+
+		await firebase.firestore()
+		.collection("students")
+		.doc(user.uid)
+		.set({
+			fullName:user.displayName || "",
+			email:user.email || "",
+			mobile:user.phoneNumber || "",
+			role:"student",
+			createdAt:new Date().toISOString()
+		},{merge:true});
+
+		alert(
+	"Account created successfully. Please verify your email before login."
+);
+
+window.location.href =
+"login.html";
+
+	}catch(err){
+		if(err.code !== "auth/popup-closed-by-user"){
+			showMsg(err.message,"error");
+		}
+	}
+}
+</script>
+
+</body>
+</html>

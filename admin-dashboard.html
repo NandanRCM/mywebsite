@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nandan RCM – Admin Dashboard</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif; }
+
+body{
+  width:100%; height:100vh;
+  background:
+    radial-gradient(circle at top right,  rgba(255,60,0,.13), transparent 35%),
+    radial-gradient(circle at bottom left, rgba(255,179,0,.10), transparent 32%),
+    #06010f;
+  color:#fff; overflow:hidden;
+}
+
+/* AUTH GATE */
+#authGate{
+  position:fixed; inset:0; background:#06010f;
+  display:flex; align-items:center; justify-content:center;
+  z-index:99999; transition:opacity .4s;
+}
+#authGate.hide{ opacity:0; pointer-events:none; }
+#authGate p{ color:rgba(255,255,255,.6); font-size:14px; }
+
+/* TOAST */
+#toast{
+  position:fixed; bottom:30px; right:30px;
+  background:linear-gradient(135deg,#ff4e00,#ffb300);
+  color:#06010f; font-weight:700; font-size:14px;
+  padding:12px 22px; border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+  opacity:0; transform:translateY(12px);
+  transition:.35s ease; pointer-events:none; z-index:9999;
+}
+#toast.show{ opacity:1; transform:translateY(0); }
+
+/* LAYOUT */
+.dashboard{
+  width:100vw; height:100vh;
+  display:flex; gap:12px;
+  padding:25px 6px 6px 10px;
+  transform:scale(.94); transform-origin:top left;
+  width:106%; height:106%;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:230px; margin-top:14px;
+  height:calc(100vh - 30px);
+  background:rgba(20,4,40,.80);
+  border:1px solid rgba(255,60,0,.22);
+  border-radius:18px; padding:16px 12px;
+  display:flex; flex-direction:column;
+  box-shadow:0 0 28px rgba(255,60,0,.10);
+  flex-shrink:0;
+}
+
+.logo{ text-align:center; padding-bottom:14px; margin-bottom:4px; border-bottom:1px solid rgba(255,255,255,.10); }
+.logo h1{ font-size:22px; font-weight:800; line-height:1.1; display:flex; align-items:center; justify-content:center; gap:6px; }
+.logo .nandan{ color:#fff; }
+.logo .rcm{ color:#ffb300; }
+.logo p{ font-size:10px; font-weight:600; letter-spacing:2px; color:rgba(255,255,255,.5); margin-top:2px; }
+
+.admin-badge{
+  margin:8px 0 12px;
+  background:linear-gradient(90deg,rgba(255,60,0,.25),rgba(255,179,0,.18));
+  border:1px solid rgba(255,100,0,.35);
+  border-radius:8px; padding:6px 10px;
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; font-weight:700; color:#ffb300;
+}
+.admin-badge i{ color:#ff4500; font-size:13px; }
+
+.nav-section{
+  font-size:10px; font-weight:700; letter-spacing:1.5px;
+  color:rgba(255,255,255,.3); margin:10px 4px 5px;
+}
+
+.nav-item{
+  height:38px; display:flex; align-items:center; gap:10px;
+  padding:0 11px; border-radius:10px; margin-bottom:4px;
+  color:#fff; font-size:12.5px; cursor:pointer; transition:.3s;
+}
+.nav-item i{ width:18px; font-size:14px; color:#ff7043; }
+.nav-item.active, .nav-item:hover{
+  background:rgba(255,80,0,.18);
+  box-shadow:inset 4px 0 #ffb300;
+}
+.nav-item .badge{
+  margin-left:auto; background:#ff4500;
+  color:#fff; font-size:10px; font-weight:700;
+  padding:2px 7px; border-radius:20px;
+}
+
+.admin-profile{
+  margin-top:auto;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px; padding:10px;
+  display:flex; align-items:center; gap:10px;
+}
+.avatar{
+  width:38px; height:38px; border-radius:50%;
+  background:linear-gradient(135deg,#ff4500,#ffb300);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-weight:800; font-size:15px;
+}
+.admin-profile h4{ font-size:12.5px; font-weight:700; }
+.admin-profile p{ font-size:10.5px; color:#ff7043; font-weight:600; }
+
+/* MAIN */
+.main{
+  flex:1; height:calc(100vh - 0px);
+  padding:8px 4px 8px 0;
+  overflow-y:auto; margin-top:14px;
+  scrollbar-width:thin; scrollbar-color:rgba(255,80,0,.3) transparent;
+}
+.main::-webkit-scrollbar{ width:4px; }
+.main::-webkit-scrollbar-thumb{ background:rgba(255,80,0,.3); border-radius:4px; }
+
+/* TOPBAR */
+.topbar{
+  display:flex; justify-content:space-between;
+  align-items:center; margin-bottom:18px;
+}
+.topbar h1{ font-size:24px; font-weight:800; }
+.topbar p{ font-size:12.5px; color:rgba(255,255,255,.65); margin-top:3px; }
+.topbar-right{ display:flex; align-items:center; gap:10px; }
+
+.logout-btn{
+  border:none; background:linear-gradient(90deg,#ff4500,#ff8c00);
+  color:#fff; padding:9px 20px; border-radius:11px;
+  font-weight:800; cursor:pointer; font-size:13px;
+  box-shadow:0 8px 20px rgba(255,69,0,.28);
+  transition:.2s;
+}
+.logout-btn:hover{ opacity:.88; transform:translateY(-1px); }
+
+.notif-btn{
+  width:40px; height:40px; border-radius:11px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.13);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; position:relative; color:#fff; font-size:16px;
+  transition:.2s;
+}
+.notif-btn:hover{ background:rgba(255,80,0,.18); }
+.notif-dot{
+  position:absolute; top:7px; right:8px;
+  width:8px; height:8px; border-radius:50%;
+  background:#ff4500; border:2px solid #06010f;
+}
+
+/* STAT CARDS */
+.stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px; }
+.stat-card{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:15px; padding:16px;
+  display:flex; align-items:center; gap:13px;
+  transition:.25s;
+}
+.stat-card:hover{ transform:translateY(-2px); box-shadow:0 8px 22px rgba(0,0,0,.25); }
+.stat-icon{
+  width:46px; height:46px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+  flex-shrink:0;
+}
+.s-red   { background:linear-gradient(135deg,#c0392b,#ff6b6b); }
+.s-blue  { background:linear-gradient(135deg,#006dff,#00c6ff); }
+.s-gold  { background:linear-gradient(135deg,#ff8c00,#ffb300); }
+.s-green { background:linear-gradient(135deg,#00a85a,#2cff88); }
+.s-purple{ background:linear-gradient(135deg,#7c3aed,#c084fc); }
+.stat-info h2{ font-size:26px; font-weight:800; line-height:1; }
+.stat-info p{ font-size:11px; color:rgba(255,255,255,.60); margin-top:2px; }
+.stat-info .trend{
+  font-size:10.5px; font-weight:700; margin-top:3px;
+}
+.trend.up{ color:#2cff88; }
+.trend.down{ color:#ff6b6b; }
+
+/* SECTION GRID */
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.grid-3{ display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-bottom:14px; }
+
+/* CARDS */
+.card{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px; padding:18px;
+}
+.card-title{
+  font-size:15px; font-weight:700; margin-bottom:14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.card-title span{ color:rgba(255,255,255,.85); }
+.card-title a{
+  font-size:11.5px; color:#ffb300;
+  text-decoration:none; font-weight:600;
+}
+
+/* TABLE */
+.data-table{ width:100%; border-collapse:collapse; }
+.data-table th{
+  text-align:left; font-size:11px; font-weight:700;
+  color:rgba(255,255,255,.40); letter-spacing:.8px;
+  padding:0 10px 10px; text-transform:uppercase;
+}
+.data-table td{
+  padding:10px; font-size:12.5px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.data-table tr:hover td{ background:rgba(255,80,0,.07); }
+
+/* STATUS PILLS */
+.pill{
+  display:inline-block; padding:3px 10px; border-radius:20px;
+  font-size:10.5px; font-weight:700;
+}
+.pill.active  { background:rgba(0,200,100,.15); color:#2cff88; border:1px solid rgba(0,200,100,.3); }
+.pill.pending { background:rgba(255,179,0,.15); color:#ffb300; border:1px solid rgba(255,179,0,.3); }
+.pill.inactive{ background:rgba(255,80,0,.15);  color:#ff7043; border:1px solid rgba(255,80,0,.3); }
+.pill.paid    { background:rgba(0,200,100,.15); color:#2cff88; border:1px solid rgba(0,200,100,.3); }
+.pill.unpaid  { background:rgba(255,80,0,.15);  color:#ff6b6b; border:1px solid rgba(255,80,0,.3); }
+
+/* AVATAR SMALL */
+.av-sm{
+  width:28px; height:28px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:800; color:#fff; margin-right:8px;
+  background:linear-gradient(135deg,#ff4500,#ffb300);
+  vertical-align:middle; flex-shrink:0;
+}
+
+/* ACTION BTNS */
+.act-btn{
+  padding:4px 10px; border-radius:7px; border:none;
+  font-size:11px; font-weight:700; cursor:pointer;
+  font-family:"Poppins",sans-serif; transition:.2s;
+}
+.act-btn.view { background:rgba(0,109,255,.25); color:#5ab4ff; }
+.act-btn.edit { background:rgba(255,179,0,.20); color:#ffb300; }
+.act-btn.del  { background:rgba(255,60,60,.20); color:#ff6b6b; }
+.act-btn:hover{ opacity:.78; }
+
+/* QUICK STATS BAR */
+.quick-bar{
+  display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:14px;
+}
+.qb-card{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:13px; padding:13px 14px;
+  display:flex; align-items:center; gap:11px;
+  cursor:pointer; transition:.25s;
+}
+.qb-card:hover{ background:rgba(255,80,0,.14); border-color:rgba(255,80,0,.3); transform:translateY(-2px); }
+.qb-card i{ font-size:20px; color:#ff7043; }
+.qb-card h3{ font-size:14px; font-weight:700; }
+.qb-card p{ font-size:10.5px; color:rgba(255,255,255,.55); }
+
+/* REVENUE BARS */
+.rev-bar-wrap{ margin-bottom:12px; }
+.rev-bar-label{ display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:5px; }
+.rev-bar-label span:last-child{ color:#ffb300; font-weight:700; }
+.rev-bar{ height:7px; background:rgba(255,255,255,.08); border-radius:4px; overflow:hidden; }
+.rev-bar div{ height:100%; border-radius:4px; background:linear-gradient(90deg,#ff4500,#ffb300); }
+
+/* ACTIVITY FEED */
+.activity-item{
+  display:flex; align-items:flex-start; gap:11px;
+  padding:10px 0; border-bottom:1px solid rgba(255,255,255,.06);
+}
+.activity-item:last-child{ border-bottom:none; }
+.act-icon{
+  width:32px; height:32px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; flex-shrink:0;
+}
+.act-icon.enroll { background:rgba(0,109,255,.2); color:#5ab4ff; }
+.act-icon.pay    { background:rgba(0,200,100,.2); color:#2cff88; }
+.act-icon.new    { background:rgba(255,179,0,.2); color:#ffb300; }
+.act-icon.alert  { background:rgba(255,60,60,.2); color:#ff6b6b; }
+.act-text p{ font-size:12.5px; line-height:1.4; }
+.act-text span{ font-size:10.5px; color:rgba(255,255,255,.45); }
+
+/* FORM ELEMENTS */
+.form-group{ margin-bottom:14px; }
+.form-group label{ display:block; font-size:12px; color:rgba(255,255,255,.70); margin-bottom:5px; }
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%; background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:10px; color:#fff;
+  padding:9px 13px; font-size:13px;
+  font-family:"Poppins",sans-serif; outline:none;
+  transition:border-color .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{ border-color:#ff7043; }
+.form-group textarea{ min-height:80px; resize:vertical; }
+.form-group select option{ background:#1a0a28; }
+
+.form-row-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+.primary-btn{
+  padding:10px 22px; border:none; border-radius:11px;
+  background:linear-gradient(90deg,#ff4500,#ff8c00);
+  color:#fff; font-weight:800; font-size:13px;
+  cursor:pointer; font-family:"Poppins",sans-serif; transition:.2s;
+}
+.primary-btn:hover{ opacity:.88; transform:translateY(-1px); }
+
+.secondary-btn{
+  padding:10px 22px; border:1px solid rgba(255,255,255,.2); border-radius:11px;
+  background:transparent; color:rgba(255,255,255,.7);
+  font-weight:600; font-size:13px; cursor:pointer;
+  font-family:"Poppins",sans-serif; transition:.2s;
+}
+.secondary-btn:hover{ background:rgba(255,255,255,.08); }
+
+/* SEARCH BAR */
+.search-bar{
+  display:flex; align-items:center; gap:10px; margin-bottom:14px;
+}
+.search-bar input{
+  flex:1; height:38px; background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.13); border-radius:10px;
+  color:#fff; padding:0 14px; font-size:13px;
+  font-family:"Poppins",sans-serif; outline:none;
+}
+.search-bar input::placeholder{ color:rgba(255,255,255,.35); }
+.search-bar input:focus{ border-color:#ff7043; }
+.search-bar select{
+  height:38px; background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.13); border-radius:10px;
+  color:#fff; padding:0 12px; font-size:13px;
+  font-family:"Poppins",sans-serif; outline:none;
+}
+.search-bar select option{ background:#1a0a28; }
+
+/* PROFILE CARD (admin) */
+.profile-msg{ padding:8px 12px; border-radius:9px; font-size:12.5px; font-weight:600; margin-bottom:12px; display:none; }
+.profile-msg.err{ background:rgba(255,60,60,.18); border:1px solid rgba(255,60,60,.4); color:#ff6b6b; }
+.profile-msg.ok { background:rgba(0,200,100,.15); border:1px solid rgba(0,200,100,.35); color:#2cff88; }
+
+.input-box{ margin-bottom:12px; }
+.input-box label{ display:block; font-size:12px; margin-bottom:5px; color:rgba(255,255,255,.70); }
+.input-box input{
+  width:100%; height:36px; border-radius:9px;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(0,0,0,.25); color:#fff;
+  padding:0 12px; outline:none; font-size:13px;
+  font-family:"Poppins",sans-serif; transition:border-color .2s;
+}
+.input-box input:focus{ border-color:#ff7043; }
+.form-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.save-btn{
+  width:100%; height:38px; border:none; border-radius:11px;
+  background:linear-gradient(90deg,#ff4500,#ff8c00);
+  color:#fff; font-weight:800; font-size:13px;
+  cursor:pointer; font-family:"Poppins",sans-serif; transition:.2s;
+}
+.save-btn:hover{ opacity:.88; }
+.save-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+.profile-tabs{ display:flex; gap:12px; margin-bottom:16px; }
+.profile-tab-btn{
+  width:165px; height:40px; border:none; border-radius:11px;
+  background:linear-gradient(90deg,#ff4500,#ff8c00);
+  color:#fff; font-weight:800; cursor:pointer;
+  font-family:"Poppins",sans-serif; font-size:13px; transition:.25s;
+}
+.profile-tab-btn.blue-btn{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:#fff; }
+
+/* EMPTY STATE */
+.empty-state{
+  text-align:center; padding:40px 20px;
+  color:rgba(255,255,255,.35);
+}
+.empty-state i{ font-size:42px; margin-bottom:12px; color:rgba(255,80,0,.35); }
+.empty-state p{ font-size:13px; }
+
+@media(max-width:1100px){
+  body{ overflow:auto; }
+  .dashboard{ transform:none; width:100%; height:auto; flex-direction:column; }
+  .sidebar{ width:100%; height:auto; margin-top:0; }
+  .main{ width:100%; height:auto; overflow:visible; }
+  .stats,.grid-2,.grid-3,.quick-bar,.form-row,.form-row-2{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="authGate">
+  <p><i class="fa-solid fa-circle-notch fa-spin" style="margin-right:8px;color:#ff7043;"></i>Loading Admin Panel...</p>
+</div>
+
+<div id="toast"></div>
+
+<div class="dashboard">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <div class="logo">
+      <h1><span class="nandan">Nandan</span> <span class="rcm">RCM</span></h1>
+      <p>Solutions</p>
+    </div>
+
+    <div class="admin-badge">
+      <i class="fa-solid fa-shield-halved"></i> Admin Panel
+    </div>
+
+    <div class="nav-section">MAIN</div>
+    <div class="nav-item active" onclick="openDashboard(this)">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </div>
+
+    <div class="nav-section">MANAGEMENT</div>
+    <div class="nav-item" onclick="openStudents(this)">
+      <i class="fa-solid fa-users"></i> Students
+      <span class="badge" id="studentBadge">0</span>
+    </div>
+    <div class="nav-item" onclick="openCourses(this)">
+      <i class="fa-solid fa-book-open"></i> Courses
+    </div>
+    <div class="nav-item" onclick="openPaymentsAdmin(this)">
+      <i class="fa-solid fa-wallet"></i> Payments
+    </div>
+    <div class="nav-item" onclick="openInternships(this)">
+      <i class="fa-solid fa-briefcase"></i> Internships
+    </div>
+
+    <div class="nav-section">COMMUNICATION</div>
+    <div class="nav-item" onclick="openAnnouncements(this)">
+      <i class="fa-solid fa-bullhorn"></i> Announcements
+    </div>
+    <div class="nav-item" onclick="openSupport(this)">
+      <i class="fa-solid fa-headset"></i> Support Tickets
+      <span class="badge">3</span>
+    </div>
+
+    <div class="nav-section">ACCOUNT</div>
+    <div class="nav-item" onclick="openAdminProfile(this)">
+      <i class="fa-solid fa-user-shield"></i> My Profile
+    </div>
+
+    <div class="admin-profile">
+      <div class="avatar" id="adminAvatar">A</div>
+      <div>
+        <h4 id="adminName">Admin</h4>
+        <p>Administrator</p>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────── -->
+  <main class="main" id="mainContent"></main>
+
+</div>
+
+<script>
+// ── FIREBASE ──────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:    "AIzaSyBdMTgzZGI10Bu3z4dm-ZUSumxN50H7UjE",
+  authDomain:"nandan-rcm.firebaseapp.com",
+  projectId: "nandan-rcm",
+  appId:     "1:418121831280:web:8f2eb7228971d0fbe7b5b5"
+});
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// ── AUTH GATE ─────────────────────────────────────────────────────
+auth.onAuthStateChanged(function(user){
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+  const gate = document.getElementById("authGate");
+  gate.classList.add("hide");
+  setTimeout(()=> gate.style.display="none", 400);
+
+  const name = user.displayName || user.email || "Admin";
+  document.getElementById("adminName").textContent = name.split(" ")[0];
+  document.getElementById("adminAvatar").textContent = name.charAt(0).toUpperCase();
+
+  // Load student count for badge
+  loadStudentCount();
+});
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), 3200);
+}
+
+function setActive(el){
+  document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
+  if(el) el.classList.add("active");
+}
+
+function topbar(title, subtitle){
+  return `
+    <div class="topbar">
+      <div>
+        <h1>${title}</h1>
+        <p>${subtitle}</p>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn" title="Notifications">
+          <i class="fa-solid fa-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+          Logout <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>`;
+}
+
+async function loadStudentCount(){
+  try{
+    const snap = await db.collection("students").get();
+    document.getElementById("studentBadge").textContent = snap.size;
+  }catch(e){}
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────
+function openDashboard(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Admin Dashboard","Welcome back! Here's your platform overview.")}
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-icon s-blue"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-info">
+          <h2 id="totalStudents">—</h2>
+          <p>Total Students</p>
+          <div class="trend up"><i class="fa-solid fa-arrow-trend-up"></i> Live from DB</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon s-gold"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="stat-info">
+          <h2>₹0</h2>
+          <p>Total Revenue</p>
+          <div class="trend up"><i class="fa-solid fa-arrow-trend-up"></i> This month</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon s-green"><i class="fa-solid fa-book-open"></i></div>
+        <div class="stat-info">
+          <h2>0</h2>
+          <p>Active Courses</p>
+          <div class="trend up">Live & running</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon s-red"><i class="fa-solid fa-headset"></i></div>
+        <div class="stat-info">
+          <h2>3</h2>
+          <p>Open Tickets</p>
+          <div class="trend down"><i class="fa-solid fa-circle-exclamation"></i> Needs attention</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+
+      <!-- RECENT STUDENTS -->
+      <div class="card">
+        <div class="card-title">
+          <span><i class="fa-solid fa-users" style="color:#ff7043;margin-right:7px;"></i>Recent Students</span>
+          <a href="#" onclick="openStudents()">View All →</a>
+        </div>
+        <div id="recentStudentsTable">
+          <div class="empty-state">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <p>Loading students...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY FEED -->
+      <div class="card">
+        <div class="card-title">
+          <span><i class="fa-solid fa-bolt" style="color:#ffb300;margin-right:7px;"></i>Activity</span>
+        </div>
+        <div class="activity-item">
+          <div class="act-icon new"><i class="fa-solid fa-user-plus"></i></div>
+          <div class="act-text">
+            <p>New student registered</p>
+            <span>Just now</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-icon pay"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+          <div class="act-text">
+            <p>Payment received ₹2999</p>
+            <span>2 hours ago</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-icon enroll"><i class="fa-solid fa-book-open"></i></div>
+          <div class="act-text">
+            <p>Student enrolled in RCM Course</p>
+            <span>5 hours ago</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-icon alert"><i class="fa-solid fa-ticket"></i></div>
+          <div class="act-text">
+            <p>New support ticket raised</p>
+            <span>Yesterday</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-icon pay"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+          <div class="act-text">
+            <p>Payment received ₹2999</p>
+            <span>Yesterday</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="card-title" style="margin-bottom:10px;">
+      <span style="font-size:15px;font-weight:700;">
+        <i class="fa-solid fa-bolt" style="color:#ffb300;margin-right:7px;"></i>Quick Actions
+      </span>
+    </div>
+    <div class="quick-bar">
+      <div class="qb-card" onclick="openStudents()">
+        <i class="fa-solid fa-user-plus"></i>
+        <div><h3>Add Student</h3><p>Register new student</p></div>
+      </div>
+      <div class="qb-card" onclick="openCourses()">
+        <i class="fa-solid fa-circle-plus"></i>
+        <div><h3>Add Course</h3><p>Create new course</p></div>
+      </div>
+      <div class="qb-card" onclick="openAnnouncements()">
+        <i class="fa-solid fa-bullhorn"></i>
+        <div><h3>Announce</h3><p>Send to all students</p></div>
+      </div>
+      <div class="qb-card" onclick="openPaymentsAdmin()">
+        <i class="fa-solid fa-file-invoice"></i>
+        <div><h3>Payments</h3><p>View all transactions</p></div>
+      </div>
+      <div class="qb-card" onclick="openSupport()">
+        <i class="fa-solid fa-headset"></i>
+        <div><h3>Support</h3><p>3 open tickets</p></div>
+      </div>
+    </div>`;
+
+  // Load real student count and recent list
+  loadDashboardStudents();
+}
+
+async function loadDashboardStudents(){
+  try{
+    const snap = await db.collection("students").orderBy("updatedAt","desc").limit(5).get();
+    document.getElementById("totalStudents").textContent = snap.size > 0 ? snap.size : "0";
+
+    if(snap.empty){
+      document.getElementById("recentStudentsTable").innerHTML = `
+        <div class="empty-state"><i class="fa-solid fa-users"></i><p>No students registered yet.</p></div>`;
+      return;
+    }
+
+    let rows = "";
+    snap.forEach(doc=>{
+      const d = doc.data();
+      const name = (d.firstName||"") + " " + (d.lastName||"");
+      const initials = (d.firstName||"S").charAt(0).toUpperCase();
+      rows += `
+        <tr>
+          <td><span class="av-sm">${initials}</span>${name.trim()||"—"}</td>
+          <td>${d.email||"—"}</td>
+          <td><span class="pill active">Active</span></td>
+        </tr>`;
+    });
+
+    document.getElementById("recentStudentsTable").innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }catch(e){
+    document.getElementById("recentStudentsTable").innerHTML =
+      `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>${e.message}</p></div>`;
+  }
+}
+
+// ── STUDENTS ──────────────────────────────────────────────────────
+function openStudents(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Students","Manage all registered students.")}
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">
+        <span><i class="fa-solid fa-users" style="color:#ff7043;margin-right:7px;"></i>All Students</span>
+        <button class="primary-btn" onclick="showAddStudentForm()">
+          <i class="fa-solid fa-user-plus"></i> Add Student
+        </button>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" id="studentSearch" placeholder="🔍  Search by name or email..." oninput="filterStudents()">
+        <select id="statusFilter" onchange="filterStudents()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div id="studentsTable">
+        <div class="empty-state">
+          <i class="fa-solid fa-circle-notch fa-spin"></i><p>Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="studentFormWrap"></div>`;
+
+  loadAllStudents();
+}
+
+let allStudentsCache = [];
+
+async function loadAllStudents(){
+  try{
+    const snap = await db.collection("students").get();
+    allStudentsCache = [];
+    snap.forEach(doc => allStudentsCache.push({ id: doc.id, ...doc.data() }));
+    renderStudentTable(allStudentsCache);
+    document.getElementById("studentBadge").textContent = allStudentsCache.length;
+  }catch(e){
+    document.getElementById("studentsTable").innerHTML =
+      `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Error: ${e.message}</p></div>`;
+  }
+}
+
+function renderStudentTable(list){
+  if(!list.length){
+    document.getElementById("studentsTable").innerHTML =
+      `<div class="empty-state"><i class="fa-solid fa-users"></i><p>No students found.</p></div>`;
+    return;
+  }
+  let rows = "";
+  list.forEach(d=>{
+    const name = ((d.firstName||"") + " " + (d.lastName||"")).trim() || "—";
+    const initials = (d.firstName||d.email||"S").charAt(0).toUpperCase();
+    const joined = d.createdAt ? d.createdAt.split("T")[0] : "—";
+    rows += `
+      <tr>
+        <td><span class="av-sm">${initials}</span>${name}</td>
+        <td>${d.email||"—"}</td>
+        <td>${d.mobile||d.phone||"—"}</td>
+        <td>${joined}</td>
+        <td><span class="pill active">Active</span></td>
+        <td>
+          <button class="act-btn view" onclick="viewStudent('${d.id}')">View</button>
+          <button class="act-btn edit" onclick="editStudent('${d.id}')">Edit</button>
+          <button class="act-btn del"  onclick="deleteStudent('${d.id}','${name}')">Delete</button>
+        </td>
+      </tr>`;
+  });
+  document.getElementById("studentsTable").innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Mobile</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function filterStudents(){
+  const q = (document.getElementById("studentSearch").value||"").toLowerCase();
+  const filtered = allStudentsCache.filter(d=>{
+    const name = ((d.firstName||"")+" "+(d.lastName||"")).toLowerCase();
+    return name.includes(q) || (d.email||"").toLowerCase().includes(q);
+  });
+  renderStudentTable(filtered);
+}
+
+function showAddStudentForm(){
+  document.getElementById("studentFormWrap").innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        <span><i class="fa-solid fa-user-plus" style="color:#ff7043;margin-right:7px;"></i>Add New Student</span>
+      </div>
+      <div class="profile-msg" id="studentFormMsg"></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>First Name</label><input id="sf_firstName" placeholder="First name"></div>
+        <div class="form-group"><label>Last Name</label><input id="sf_lastName" placeholder="Last name"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Email</label><input type="email" id="sf_email" placeholder="Email address"></div>
+        <div class="form-group"><label>Mobile</label><input id="sf_mobile" placeholder="Mobile number"></div>
+      </div>
+      <div class="form-group"><label>Temp Password</label><input type="password" id="sf_password" placeholder="Set temporary password"></div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button class="primary-btn" onclick="addStudentManual()">Add Student</button>
+        <button class="secondary-btn" onclick="document.getElementById('studentFormWrap').innerHTML=''">Cancel</button>
+      </div>
+    </div>`;
+}
+
+async function addStudentManual(){
+  const firstName = document.getElementById("sf_firstName").value.trim();
+  const lastName  = document.getElementById("sf_lastName").value.trim();
+  const email     = document.getElementById("sf_email").value.trim();
+  const mobile    = document.getElementById("sf_mobile").value.trim();
+  const password  = document.getElementById("sf_password").value;
+  const msgEl     = document.getElementById("studentFormMsg");
+
+  if(!firstName||!email||!password){
+    msgEl.textContent="First name, email and password are required.";
+    msgEl.className="profile-msg err"; msgEl.style.display="block"; return;
+  }
+
+  // Note: Creating users from client requires Firebase Admin SDK or Cloud Functions for full admin flow.
+  // Here we save to Firestore directly and show instruction.
+  try{
+    const id = email.replace(/[^a-z0-9]/gi,"_") + "_" + Date.now();
+    await db.collection("students").doc(id).set({
+      firstName, lastName, email, mobile,
+      role:"student", createdAt: new Date().toISOString()
+    });
+    msgEl.textContent="Student record saved ✅ (Ask student to sign up with this email to link their auth account.)";
+    msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    showToast("Student added ✅");
+    loadAllStudents();
+  }catch(e){
+    msgEl.textContent="Error: "+e.message;
+    msgEl.className="profile-msg err"; msgEl.style.display="block";
+  }
+}
+
+async function viewStudent(id){
+  try{
+    const doc = await db.collection("students").doc(id).get();
+    const d = doc.data();
+    const name = ((d.firstName||"")+" "+(d.lastName||"")).trim()||"—";
+    alert(`Student Details\n\nName: ${name}\nEmail: ${d.email||"—"}\nMobile: ${d.mobile||d.phone||"—"}\nJoined: ${(d.createdAt||"").split("T")[0]}`);
+  }catch(e){ alert("Error: "+e.message); }
+}
+
+async function editStudent(id){
+  try{
+    const doc = await db.collection("students").doc(id).get();
+    const d = doc.data();
+    document.getElementById("studentFormWrap").innerHTML = `
+      <div class="card">
+        <div class="card-title">
+          <span><i class="fa-solid fa-user-pen" style="color:#ffb300;margin-right:7px;"></i>Edit Student</span>
+        </div>
+        <div class="profile-msg" id="editMsg"></div>
+        <div class="form-row-2">
+          <div class="form-group"><label>First Name</label><input id="ef_firstName" value="${d.firstName||""}"></div>
+          <div class="form-group"><label>Last Name</label><input id="ef_lastName" value="${d.lastName||""}"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group"><label>Email</label><input id="ef_email" value="${d.email||""}"></div>
+          <div class="form-group"><label>Mobile</label><input id="ef_mobile" value="${d.mobile||d.phone||""}"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="primary-btn" onclick="saveEditStudent('${id}')">Save Changes</button>
+          <button class="secondary-btn" onclick="document.getElementById('studentFormWrap').innerHTML=''">Cancel</button>
+        </div>
+      </div>`;
+    document.getElementById("studentFormWrap").scrollIntoView({behavior:"smooth"});
+  }catch(e){ alert("Error: "+e.message); }
+}
+
+async function saveEditStudent(id){
+  const firstName = document.getElementById("ef_firstName").value.trim();
+  const lastName  = document.getElementById("ef_lastName").value.trim();
+  const email     = document.getElementById("ef_email").value.trim();
+  const mobile    = document.getElementById("ef_mobile").value.trim();
+  const msgEl     = document.getElementById("editMsg");
+  try{
+    await db.collection("students").doc(id).set(
+      {firstName,lastName,email,mobile,updatedAt:new Date().toISOString()},{merge:true}
+    );
+    msgEl.textContent="Saved ✅";
+    msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    showToast("Student updated ✅");
+    loadAllStudents();
+  }catch(e){
+    msgEl.textContent="Error: "+e.message;
+    msgEl.className="profile-msg err"; msgEl.style.display="block";
+  }
+}
+
+async function deleteStudent(id, name){
+  if(!confirm(`Delete student "${name}"?\nThis cannot be undone.`)) return;
+  try{
+    await db.collection("students").doc(id).delete();
+    showToast("Student deleted");
+    loadAllStudents();
+  }catch(e){ alert("Error: "+e.message); }
+}
+
+// ── COURSES ───────────────────────────────────────────────────────
+function openCourses(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Courses","Create and manage training courses.")}
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">
+        <span><i class="fa-solid fa-book-open" style="color:#ff7043;margin-right:7px;"></i>All Courses</span>
+        <button class="primary-btn" onclick="showCourseForm()">
+          <i class="fa-solid fa-circle-plus"></i> New Course
+        </button>
+      </div>
+      <div id="coursesTable">
+        <div class="empty-state"><i class="fa-solid fa-book-open"></i><p>No courses added yet. Click "New Course" to create one.</p></div>
+      </div>
+    </div>
+
+    <div id="courseFormWrap"></div>`;
+
+  loadCourses();
+}
+
+async function loadCourses(){
+  try{
+    const snap = await db.collection("courses").get();
+    if(snap.empty){
+      document.getElementById("coursesTable").innerHTML =
+        `<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>No courses added yet.</p></div>`;
+      return;
+    }
+    let rows="";
+    snap.forEach(doc=>{
+      const d=doc.data();
+      rows+=`<tr>
+        <td>${d.title||"—"}</td>
+        <td>${d.category||"—"}</td>
+        <td style="color:#ffb300;font-weight:700;">₹${d.price||0}</td>
+        <td>${d.duration||"—"}</td>
+        <td><span class="pill ${d.status==="active"?"active":"pending"}">${d.status||"draft"}</span></td>
+        <td>
+          <button class="act-btn edit" onclick="editCourse('${doc.id}')">Edit</button>
+          <button class="act-btn del"  onclick="deleteCourse('${doc.id}','${d.title||""}')">Delete</button>
+        </td>
+      </tr>`;
+    });
+    document.getElementById("coursesTable").innerHTML=`
+      <table class="data-table">
+        <thead><tr><th>Title</th><th>Category</th><th>Price</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }catch(e){
+    document.getElementById("coursesTable").innerHTML=
+      `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>${e.message}</p></div>`;
+  }
+}
+
+function showCourseForm(data={}, id=""){
+  document.getElementById("courseFormWrap").innerHTML=`
+    <div class="card">
+      <div class="card-title">
+        <span><i class="fa-solid fa-circle-plus" style="color:#ff7043;margin-right:7px;"></i>${id?"Edit":"New"} Course</span>
+      </div>
+      <div class="profile-msg" id="courseMsg"></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Course Title</label><input id="cf_title" placeholder="e.g. RCM Billing Basics" value="${data.title||""}"></div>
+        <div class="form-group"><label>Category</label>
+          <select id="cf_category">
+            <option ${(data.category||"")==="RCM"?"selected":""}>RCM</option>
+            <option ${(data.category||"")==="Medical Coding"?"selected":""}>Medical Coding</option>
+            <option ${(data.category||"")==="Billing"?"selected":""}>Billing</option>
+            <option ${(data.category||"")==="Other"?"selected":""}>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Price (₹)</label><input type="number" id="cf_price" placeholder="2999" value="${data.price||""}"></div>
+        <div class="form-group"><label>Duration</label><input id="cf_duration" placeholder="e.g. 3 Months" value="${data.duration||""}"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="cf_desc" placeholder="Course description...">${data.description||""}</textarea></div>
+      <div class="form-group"><label>Status</label>
+        <select id="cf_status">
+          <option value="active"   ${(data.status||"")==="active"?"selected":""}>Active</option>
+          <option value="draft"    ${(data.status||"")==="draft"?"selected":""}>Draft</option>
+          <option value="inactive" ${(data.status||"")==="inactive"?"selected":""}>Inactive</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="primary-btn" onclick="saveCourse('${id}')">Save Course</button>
+        <button class="secondary-btn" onclick="document.getElementById('courseFormWrap').innerHTML=''">Cancel</button>
+      </div>
+    </div>`;
+  document.getElementById("courseFormWrap").scrollIntoView({behavior:"smooth"});
+}
+
+async function saveCourse(id){
+  const data={
+    title:       document.getElementById("cf_title").value.trim(),
+    category:    document.getElementById("cf_category").value,
+    price:       document.getElementById("cf_price").value,
+    duration:    document.getElementById("cf_duration").value.trim(),
+    description: document.getElementById("cf_desc").value.trim(),
+    status:      document.getElementById("cf_status").value,
+    updatedAt:   new Date().toISOString()
+  };
+  const msgEl=document.getElementById("courseMsg");
+  if(!data.title){ msgEl.textContent="Title is required."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  try{
+    if(id) await db.collection("courses").doc(id).set(data,{merge:true});
+    else   await db.collection("courses").add({...data,createdAt:new Date().toISOString()});
+    msgEl.textContent="Course saved ✅"; msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    showToast("Course saved ✅"); loadCourses();
+  }catch(e){ msgEl.textContent="Error: "+e.message; msgEl.className="profile-msg err"; msgEl.style.display="block"; }
+}
+
+async function editCourse(id){
+  const doc=await db.collection("courses").doc(id).get();
+  showCourseForm(doc.data(),id);
+}
+
+async function deleteCourse(id,title){
+  if(!confirm(`Delete course "${title}"?`)) return;
+  await db.collection("courses").doc(id).delete();
+  showToast("Course deleted"); loadCourses();
+}
+
+// ── PAYMENTS ──────────────────────────────────────────────────────
+function openPaymentsAdmin(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Payments","Track all student payments and revenue.")}
+
+    <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px;">
+      <div class="stat-card">
+        <div class="stat-icon s-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="stat-info"><h2>₹0</h2><p>Total Collected</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon s-gold"><i class="fa-solid fa-clock"></i></div>
+        <div class="stat-info"><h2>0</h2><p>Pending Payments</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon s-red"><i class="fa-solid fa-xmark"></i></div>
+        <div class="stat-info"><h2>0</h2><p>Failed Payments</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span><i class="fa-solid fa-file-invoice" style="color:#ff7043;margin-right:7px;"></i>Payment Records</span>
+        <button class="primary-btn" onclick="showAddPaymentForm()">
+          <i class="fa-solid fa-plus"></i> Add Record
+        </button>
+      </div>
+      <div id="paymentsTable">
+        <div class="empty-state"><i class="fa-solid fa-wallet"></i><p>No payment records yet.</p></div>
+      </div>
+    </div>
+    <div id="paymentFormWrap" style="margin-top:14px;"></div>`;
+
+  loadPayments();
+}
+
+async function loadPayments(){
+  try{
+    const snap = await db.collection("payments").orderBy("createdAt","desc").get();
+    if(snap.empty){ return; }
+    let rows="";
+    snap.forEach(doc=>{
+      const d=doc.data();
+      rows+=`<tr>
+        <td>${d.studentName||"—"}</td>
+        <td>${d.course||"—"}</td>
+        <td style="color:#ffb300;font-weight:700;">₹${d.amount||0}</td>
+        <td>${(d.createdAt||"").split("T")[0]}</td>
+        <td><span class="pill ${d.status==="paid"?"paid":"unpaid"}">${d.status||"pending"}</span></td>
+        <td><button class="act-btn del" onclick="deletePayment('${doc.id}')">Remove</button></td>
+      </tr>`;
+    });
+    document.getElementById("paymentsTable").innerHTML=`
+      <table class="data-table">
+        <thead><tr><th>Student</th><th>Course</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }catch(e){}
+}
+
+function showAddPaymentForm(){
+  document.getElementById("paymentFormWrap").innerHTML=`
+    <div class="card">
+      <div class="card-title"><span>Add Payment Record</span></div>
+      <div class="profile-msg" id="payMsg"></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Student Name</label><input id="pf_name" placeholder="Student full name"></div>
+        <div class="form-group"><label>Course</label><input id="pf_course" placeholder="Course name"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Amount (₹)</label><input type="number" id="pf_amount" placeholder="2999"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="pf_status">
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="primary-btn" onclick="savePayment()">Save</button>
+        <button class="secondary-btn" onclick="document.getElementById('paymentFormWrap').innerHTML=''">Cancel</button>
+      </div>
+    </div>`;
+}
+
+async function savePayment(){
+  const msgEl=document.getElementById("payMsg");
+  const data={
+    studentName: document.getElementById("pf_name").value.trim(),
+    course:      document.getElementById("pf_course").value.trim(),
+    amount:      document.getElementById("pf_amount").value,
+    status:      document.getElementById("pf_status").value,
+    createdAt:   new Date().toISOString()
+  };
+  if(!data.studentName||!data.amount){ msgEl.textContent="Name and amount required."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  try{
+    await db.collection("payments").add(data);
+    msgEl.textContent="Saved ✅"; msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    showToast("Payment record saved ✅"); loadPayments();
+  }catch(e){ msgEl.textContent="Error: "+e.message; msgEl.className="profile-msg err"; msgEl.style.display="block"; }
+}
+
+async function deletePayment(id){
+  if(!confirm("Remove this payment record?")) return;
+  await db.collection("payments").doc(id).delete();
+  showToast("Removed"); loadPayments();
+}
+
+// ── INTERNSHIPS ───────────────────────────────────────────────────
+function openInternships(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Internships","Post and manage internship opportunities.")}
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">
+        <span><i class="fa-solid fa-briefcase" style="color:#ff7043;margin-right:7px;"></i>Internship Listings</span>
+        <button class="primary-btn" onclick="showInternshipForm()"><i class="fa-solid fa-plus"></i> Post Internship</button>
+      </div>
+      <div id="internshipsTable">
+        <div class="empty-state"><i class="fa-solid fa-briefcase"></i><p>No internships posted yet.</p></div>
+      </div>
+    </div>
+    <div id="internshipFormWrap"></div>`;
+  loadInternships();
+}
+
+async function loadInternships(){
+  try{
+    const snap=await db.collection("internships").get();
+    if(snap.empty) return;
+    let rows="";
+    snap.forEach(doc=>{
+      const d=doc.data();
+      rows+=`<tr>
+        <td>${d.title||"—"}</td><td>${d.company||"—"}</td><td>${d.location||"—"}</td>
+        <td>${d.stipend||"—"}</td>
+        <td><span class="pill ${d.status==="active"?"active":"pending"}">${d.status||"draft"}</span></td>
+        <td>
+          <button class="act-btn edit" onclick="editInternship('${doc.id}')">Edit</button>
+          <button class="act-btn del"  onclick="deleteInternship('${doc.id}')">Delete</button>
+        </td>
+      </tr>`;
+    });
+    document.getElementById("internshipsTable").innerHTML=`
+      <table class="data-table">
+        <thead><tr><th>Role</th><th>Company</th><th>Location</th><th>Stipend</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }catch(e){}
+}
+
+function showInternshipForm(data={},id=""){
+  document.getElementById("internshipFormWrap").innerHTML=`
+    <div class="card">
+      <div class="card-title"><span>${id?"Edit":"Post"} Internship</span></div>
+      <div class="profile-msg" id="intMsg"></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Job Title</label><input id="if_title" value="${data.title||""}" placeholder="e.g. RCM Analyst Intern"></div>
+        <div class="form-group"><label>Company</label><input id="if_company" value="${data.company||""}" placeholder="Company name"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Location</label><input id="if_location" value="${data.location||""}" placeholder="City / Remote"></div>
+        <div class="form-group"><label>Stipend</label><input id="if_stipend" value="${data.stipend||""}" placeholder="e.g. ₹5000/month"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="if_desc" placeholder="Role details...">${data.description||""}</textarea></div>
+      <div class="form-group"><label>Status</label>
+        <select id="if_status">
+          <option value="active" ${(data.status||"")==="active"?"selected":""}>Active</option>
+          <option value="closed" ${(data.status||"")==="closed"?"selected":""}>Closed</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="primary-btn" onclick="saveInternship('${id}')">Save</button>
+        <button class="secondary-btn" onclick="document.getElementById('internshipFormWrap').innerHTML=''">Cancel</button>
+      </div>
+    </div>`;
+  document.getElementById("internshipFormWrap").scrollIntoView({behavior:"smooth"});
+}
+
+async function saveInternship(id){
+  const msgEl=document.getElementById("intMsg");
+  const data={
+    title:document.getElementById("if_title").value.trim(),
+    company:document.getElementById("if_company").value.trim(),
+    location:document.getElementById("if_location").value.trim(),
+    stipend:document.getElementById("if_stipend").value.trim(),
+    description:document.getElementById("if_desc").value.trim(),
+    status:document.getElementById("if_status").value,
+    updatedAt:new Date().toISOString()
+  };
+  if(!data.title){ msgEl.textContent="Title required."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  try{
+    if(id) await db.collection("internships").doc(id).set(data,{merge:true});
+    else   await db.collection("internships").add({...data,createdAt:new Date().toISOString()});
+    msgEl.textContent="Saved ✅"; msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    showToast("Internship saved ✅"); loadInternships();
+  }catch(e){ msgEl.textContent="Error: "+e.message; msgEl.className="profile-msg err"; msgEl.style.display="block"; }
+}
+
+async function editInternship(id){
+  const doc=await db.collection("internships").doc(id).get();
+  showInternshipForm(doc.data(),id);
+}
+
+async function deleteInternship(id){
+  if(!confirm("Delete this internship?")) return;
+  await db.collection("internships").doc(id).delete();
+  showToast("Deleted"); loadInternships();
+}
+
+// ── ANNOUNCEMENTS ─────────────────────────────────────────────────
+function openAnnouncements(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Announcements","Broadcast messages to all students.")}
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span><i class="fa-solid fa-bullhorn" style="color:#ff7043;margin-right:7px;"></i>New Announcement</span></div>
+        <div class="profile-msg" id="annMsg"></div>
+        <div class="form-group"><label>Title</label><input id="ann_title" placeholder="Announcement title"></div>
+        <div class="form-group"><label>Message</label><textarea id="ann_body" placeholder="Write your message here..." style="min-height:120px;"></textarea></div>
+        <div class="form-row-2">
+          <div class="form-group"><label>Priority</label>
+            <select id="ann_priority">
+              <option value="normal">Normal</option>
+              <option value="important">Important</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Target</label>
+            <select id="ann_target">
+              <option value="all">All Students</option>
+              <option value="active">Active Students</option>
+            </select>
+          </div>
+        </div>
+        <button class="primary-btn" onclick="postAnnouncement()" style="width:100%;">
+          <i class="fa-solid fa-paper-plane"></i> Post Announcement
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span><i class="fa-solid fa-list" style="color:#ff7043;margin-right:7px;"></i>Recent Announcements</span></div>
+        <div id="annList">
+          <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i><p>Loading...</p></div>
+        </div>
+      </div>
+    </div>`;
+  loadAnnouncements();
+}
+
+async function loadAnnouncements(){
+  try{
+    const snap=await db.collection("announcements").orderBy("createdAt","desc").limit(10).get();
+    if(snap.empty){ document.getElementById("annList").innerHTML=`<div class="empty-state"><i class="fa-solid fa-bullhorn"></i><p>No announcements yet.</p></div>`; return; }
+    let html="";
+    snap.forEach(doc=>{
+      const d=doc.data();
+      const date=(d.createdAt||"").split("T")[0];
+      const color=d.priority==="urgent"?"#ff6b6b":d.priority==="important"?"#ffb300":"rgba(255,255,255,.7)";
+      html+=`<div class="activity-item">
+        <div class="act-icon new"><i class="fa-solid fa-bullhorn"></i></div>
+        <div class="act-text" style="flex:1;">
+          <p style="font-weight:700;color:${color};">${d.title||"—"}</p>
+          <p style="color:rgba(255,255,255,.6);font-size:12px;">${(d.body||"").substring(0,80)}${d.body&&d.body.length>80?"...":""}</p>
+          <span>${date} · ${d.target||"all"}</span>
+        </div>
+        <button class="act-btn del" onclick="deleteAnnouncement('${doc.id}')">Del</button>
+      </div>`;
+    });
+    document.getElementById("annList").innerHTML=html;
+  }catch(e){ document.getElementById("annList").innerHTML=`<div class="empty-state"><p>${e.message}</p></div>`; }
+}
+
+async function postAnnouncement(){
+  const msgEl=document.getElementById("annMsg");
+  const data={
+    title:    document.getElementById("ann_title").value.trim(),
+    body:     document.getElementById("ann_body").value.trim(),
+    priority: document.getElementById("ann_priority").value,
+    target:   document.getElementById("ann_target").value,
+    createdAt:new Date().toISOString()
+  };
+  if(!data.title||!data.body){ msgEl.textContent="Title and message required."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  try{
+    await db.collection("announcements").add(data);
+    msgEl.textContent="Posted ✅"; msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    document.getElementById("ann_title").value="";
+    document.getElementById("ann_body").value="";
+    showToast("Announcement posted ✅"); loadAnnouncements();
+  }catch(e){ msgEl.textContent="Error: "+e.message; msgEl.className="profile-msg err"; msgEl.style.display="block"; }
+}
+
+async function deleteAnnouncement(id){
+  if(!confirm("Delete this announcement?")) return;
+  await db.collection("announcements").doc(id).delete();
+  showToast("Deleted"); loadAnnouncements();
+}
+
+// ── SUPPORT TICKETS ───────────────────────────────────────────────
+function openSupport(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("Support Tickets","Manage student queries and support requests.")}
+    <div class="card">
+      <div class="card-title">
+        <span><i class="fa-solid fa-headset" style="color:#ff7043;margin-right:7px;"></i>Open Tickets</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Ticket ID</th><th>Student</th><th>Subject</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>#TKT-001</td><td><span class="av-sm">R</span>Rajendra P.</td>
+            <td>Cannot access live class recording</td><td>2026-05-28</td>
+            <td><span class="pill pending">Open</span></td>
+            <td><button class="act-btn view">Reply</button> <button class="act-btn edit">Close</button></td>
+          </tr>
+          <tr>
+            <td>#TKT-002</td><td><span class="av-sm">A</span>Anita S.</td>
+            <td>Payment not reflecting</td><td>2026-05-27</td>
+            <td><span class="pill pending">Open</span></td>
+            <td><button class="act-btn view">Reply</button> <button class="act-btn edit">Close</button></td>
+          </tr>
+          <tr>
+            <td>#TKT-003</td><td><span class="av-sm">M</span>Mohan R.</td>
+            <td>Certificate not generated after completion</td><td>2026-05-26</td>
+            <td><span class="pill pending">Open</span></td>
+            <td><button class="act-btn view">Reply</button> <button class="act-btn edit">Close</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── ADMIN PROFILE ─────────────────────────────────────────────────
+function openAdminProfile(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML = `
+    ${topbar("My Profile","Manage your admin account settings.")}
+    <div class="profile-tabs">
+      <button class="profile-tab-btn" onclick="showAdminInfo()">Personal Info</button>
+      <button class="profile-tab-btn blue-btn" onclick="showAdminPrivacy()">Privacy</button>
+    </div>
+    <div id="adminProfileContent"></div>`;
+  showAdminInfo();
+}
+
+async function showAdminInfo(){
+  document.getElementById("adminProfileContent").innerHTML=`
+    <div class="card" style="max-width:520px;">
+      <h3 style="margin-bottom:14px;font-size:17px;"><i class="fa-solid fa-user-shield" style="color:#ff7043;margin-right:8px;"></i>Admin Information</h3>
+      <div class="profile-msg" id="adminMsg"></div>
+      <div class="form-row">
+        <div class="input-box"><label>First Name</label><input type="text" id="adm_firstName" placeholder="First name"></div>
+        <div class="input-box"><label>Last Name</label><input type="text" id="adm_lastName" placeholder="Last name"></div>
+      </div>
+      <div class="input-box"><label>Email</label><input type="email" id="adm_email" placeholder="Email address"></div>
+      <div class="input-box"><label>Phone</label><input type="text" id="adm_phone" placeholder="Phone number"></div>
+      <button class="save-btn" id="admSaveBtn" onclick="saveAdminProfile()">Save Changes <i class="fa-solid fa-floppy-disk"></i></button>
+    </div>`;
+
+  const user=auth.currentUser;
+  if(user&&user.email) document.getElementById("adm_email").value=user.email;
+  if(user){
+    try{
+      const snap=await db.collection("admins").doc(user.uid).get();
+      if(snap.exists){
+        const d=snap.data();
+        if(d.firstName) document.getElementById("adm_firstName").value=d.firstName;
+        if(d.lastName)  document.getElementById("adm_lastName").value=d.lastName;
+        if(d.phone)     document.getElementById("adm_phone").value=d.phone;
+      }
+    }catch(e){}
+  }
+}
+
+function showAdminPrivacy(){
+  document.getElementById("adminProfileContent").innerHTML=`
+    <div class="card" style="max-width:520px;">
+      <h3 style="margin-bottom:14px;font-size:17px;"><i class="fa-solid fa-lock" style="color:#ff7043;margin-right:8px;"></i>Change Password</h3>
+      <div class="profile-msg" id="admPwMsg"></div>
+      <div class="input-box"><label>New Password</label><input type="password" id="adm_newPw" placeholder="Enter new password"></div>
+      <div class="input-box"><label>Confirm Password</label><input type="password" id="adm_confirmPw" placeholder="Re-enter new password"></div>
+      <button class="save-btn" id="admPwBtn" onclick="saveAdminPassword()">Change Password <i class="fa-solid fa-key"></i></button>
+    </div>`;
+}
+
+async function saveAdminProfile(){
+  const user=auth.currentUser;
+  if(!user){ return; }
+  const firstName=document.getElementById("adm_firstName").value.trim();
+  const lastName =document.getElementById("adm_lastName").value.trim();
+  const email    =document.getElementById("adm_email").value.trim();
+  const phone    =document.getElementById("adm_phone").value.trim();
+  const msgEl    =document.getElementById("adminMsg");
+  if(!firstName){ msgEl.textContent="First name required."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  const btn=document.getElementById("admSaveBtn");
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+  try{
+    await db.collection("admins").doc(user.uid).set({firstName,lastName,email,phone,updatedAt:new Date().toISOString()},{merge:true});
+    document.getElementById("adminName").textContent=firstName;
+    document.getElementById("adminAvatar").textContent=firstName.charAt(0).toUpperCase();
+    btn.innerHTML='<i class="fa-solid fa-check"></i> Saved!';
+    msgEl.textContent="Profile updated ✅"; msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    showToast("Profile updated ✅");
+    setTimeout(()=>{ btn.disabled=false; btn.innerHTML='Save Changes <i class="fa-solid fa-floppy-disk"></i>'; },2000);
+  }catch(e){ msgEl.textContent="Error: "+e.message; msgEl.className="profile-msg err"; msgEl.style.display="block"; btn.disabled=false; btn.innerHTML='Save Changes'; }
+}
+
+async function saveAdminPassword(){
+  const user=auth.currentUser;
+  const newPw =document.getElementById("adm_newPw").value;
+  const confPw=document.getElementById("adm_confirmPw").value;
+  const msgEl =document.getElementById("admPwMsg");
+  if(!newPw)          { msgEl.textContent="Enter a new password."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  if(newPw!==confPw)  { msgEl.textContent="Passwords do not match."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  if(newPw.length<6)  { msgEl.textContent="Minimum 6 characters."; msgEl.className="profile-msg err"; msgEl.style.display="block"; return; }
+  const btn=document.getElementById("admPwBtn");
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Updating...';
+  try{
+    await user.updatePassword(newPw);
+    document.getElementById("adm_newPw").value="";
+    document.getElementById("adm_confirmPw").value="";
+    btn.innerHTML='<i class="fa-solid fa-check"></i> Done!';
+    msgEl.textContent="Password changed ✅"; msgEl.className="profile-msg ok"; msgEl.style.display="block";
+    showToast("Password changed ✅");
+    setTimeout(()=>{ btn.disabled=false; btn.innerHTML='Change Password <i class="fa-solid fa-key"></i>'; },2000);
+  }catch(e){ msgEl.textContent="Error: "+e.message; msgEl.className="profile-msg err"; msgEl.style.display="block"; btn.disabled=false; btn.innerHTML='Change Password'; }
+}
+
+// ── LOGOUT ────────────────────────────────────────────────────────
+function logout(){
+  auth.signOut().then(()=>{ window.location.href="login.html"; });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+openDashboard();
+</script>
+</body>
+</html>
