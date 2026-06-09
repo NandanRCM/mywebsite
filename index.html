@@ -497,6 +497,125 @@ h1 .lead{display:inline-block;margin-top:10px;background:linear-gradient(180deg,
   .ai-panel{width:calc(100vw - 60px);}
   .contact-container{grid-template-columns:1fr;}
 }
+
+  /* ===== MOBILE FIX ===== */
+@media (max-width: 768px){
+
+  html, body{
+    width:100%;
+    min-height:100%;
+    height:auto !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+  }
+
+  body{
+    padding:16px !important;
+    justify-content:center !important;
+    align-items:flex-start !important;
+  }
+
+  .header{
+    width:94vw !important;
+    height:auto !important;
+    padding:12px 14px !important;
+    border-radius:18px !important;
+  }
+
+  .nav{
+    display:none !important;
+  }
+
+  .shell{
+    width:100% !important;
+    height:auto !important;
+    min-height:auto !important;
+    border-radius:22px !important;
+  }
+
+  .page-section{
+    padding:92px 10px 24px !important;
+  }
+
+  .hero,
+  .content-grid,
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .stats,
+  .feature-row,
+  .quick-grid,
+  .form-row,
+  .feature-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  .left{
+    padding:28px 18px !important;
+  }
+
+  h1{
+    font-size:34px !important;
+    line-height:1.05 !important;
+  }
+
+  .right{
+    height:auto !important;
+    min-height:320px !important;
+    overflow:hidden !important;
+  }
+
+  .workflow-area{
+    position:relative !important;
+    right:auto !important;
+    top:auto !important;
+    width:100% !important;
+    transform:scale(.62) !important;
+    transform-origin:top center !important;
+    margin:0 auto !important;
+  }
+
+  .login-panel,
+  .signup-window,
+  .panel{
+    width:100% !important;
+    max-width:420px !important;
+    margin:70px auto 20px !important;
+  }
+
+  .dashboard,
+  .admin-wrap{
+    transform:none !important;
+    width:100% !important;
+    height:auto !important;
+    flex-direction:column !important;
+    padding:10px !important;
+  }
+
+  .sidebar{
+    width:100% !important;
+    height:auto !important;
+    margin-top:0 !important;
+  }
+
+  .main{
+    width:100% !important;
+    height:auto !important;
+    overflow:visible !important;
+  }
+
+  .topbar{
+    flex-direction:column !important;
+    gap:12px !important;
+    margin-bottom:18px !important;
+  }
+
+  .table{
+    display:block !important;
+    overflow-x:auto !important;
+    white-space:nowrap !important;
+  }
+}
 </style>
 </head>
 <body>
