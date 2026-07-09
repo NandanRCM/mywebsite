@@ -133,11 +133,16 @@ function updateSelectedStudentRows(){
   const count=document.getElementById("selectedStudentCount");
   if(count)count.textContent=selectedStudentRows.length;
 }
-async function bulkResetSelectedStudentPasswords(){
-  if(!selectedStudentRows.length){alert("Please select at least one student.");return;}
-  if(!confirm("Reset selected student passwords to NandanRCM?"))return;
-  for(const id of selectedStudentRows){await resetStudentPassword(id,false);}
-  alert("Selected student password reset request completed. Default password: NandanRCM");
+async function resetStudentPassword(uid){
+  if(!confirm("Reset this student's password to NandanRCM?")) return;
+
+  try{
+    const resetFn = functionsApi.httpsCallable("resetStudentPassword");
+    const result = await resetFn({ uid });
+    alert(result.data.message);
+  }catch(error){
+    alert("Reset failed: " + error.message);
+  }
 }
 async function bulkSetSelectedStatus(status){
   if(!selectedStudentRows.length){alert("Please select at least one student.");return;}
