@@ -129,6 +129,17 @@ body{
 	left:22px;
 }
 
+.password-toggle{
+	right:20px;
+	cursor:pointer;
+	font-size:20px !important;
+	color:rgba(255,255,255,0.80) !important;
+}
+
+.password-toggle:hover{
+	color:#ffb300 !important;
+}
+
 #countryCode{
 	width:75px;
 	height:52px;
@@ -388,7 +399,8 @@ async function redirectByRole(user){
 
 		<div class="input-box" id="passwordBox">
 			<i class="fa-solid fa-lock left-icon"></i>
-			<input type="text" id="password" placeholder="Password">
+			<input type="password" id="password" placeholder="Password">
+			<i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
 		</div>
 
 		<div id="recaptcha-container"></div>
@@ -438,6 +450,22 @@ async function redirectByRole(user){
 </div>
 
 <script>
+
+/* PASSWORD SHOW / HIDE */
+const passwordField = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+
+togglePassword.addEventListener("click", function(){
+
+	const isHidden = passwordField.type === "password";
+
+	passwordField.type = isHidden ? "text" : "password";
+
+	this.classList.toggle("fa-eye", !isHidden);
+	this.classList.toggle("fa-eye-slash", isHidden);
+
+});
+
 /* RECAPTCHA */
 window.onload = function(){
 
