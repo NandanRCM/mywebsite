@@ -527,8 +527,7 @@ body{
 
 	<button class="signup-btn"
 		id="signupBtn"
-		onclick="handleSignup()"
-		disabled>
+		onclick="handleSignup()">
 
 	Sign Up
 
@@ -624,7 +623,7 @@ countryCode + mobile;
 	let phone =
 	mobile.startsWith("+")
 	? mobile
-	: "+91" + mobile;
+	: countryCode + mobile;
 
 	try{
 
@@ -665,6 +664,11 @@ async function verifyMobileOTP(){
 			"error"
 		);
 
+		return false;
+	}
+
+	if(!window.confirmationResult){
+		showMsg("Please click Send OTP first.","error");
 		return false;
 	}
 
@@ -712,6 +716,8 @@ async function handleSignup(){
 	const fullName = document.getElementById("fullName").value.trim();
 	const email = document.getElementById("email").value.trim();
 	const mobile = document.getElementById("mobile").value.trim();
+	const countryCode = document.getElementById("countryCode").value;
+	const fullMobile = mobile.startsWith("+") ? mobile : countryCode + mobile;
 	const password = document.getElementById("password").value;
 	const confirm = document.getElementById("confirmPassword").value;
 	const agreed = document.getElementById("terms").checked;
