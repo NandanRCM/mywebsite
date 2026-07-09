@@ -66,7 +66,7 @@
 <div class="admin-wrap"><aside class="sidebar"><div class="logo"><h1>Nandan <span>RCM</span></h1><p>ADMIN DASHBOARD</p></div><div class="nav-item active" onclick="openOverview(this)"><i class="fa-solid fa-gauge"></i> Overview</div><div class="nav-item" onclick="openStudentManager(this)"><i class="fa-solid fa-user-gear"></i> Student Manager</div><div class="nav-item" onclick="openAttendanceTracking(this)"><i class="fa-solid fa-user-check"></i> Attendance Tracking</div><div class="nav-item" onclick="openBulkUpdate(this)"><i class="fa-solid fa-users-gear"></i> Bulk Update</div><div class="nav-item" onclick="openReports(this)"><i class="fa-solid fa-file-excel"></i> Reports / Excel</div><div class="nav-item" onclick="openPayments(this)"><i class="fa-solid fa-wallet"></i> Payments</div><div class="nav-item" onclick="openTickets(this)"><i class="fa-solid fa-ticket"></i> Support Tickets</div><div class="nav-item" onclick="openAnnouncements(this)"><i class="fa-solid fa-bullhorn"></i> Announcements</div><div class="nav-item" onclick="openAdminManagement(this)"><i class="fa-solid fa-user-shield"></i> Admin Management</div><div class="nav-item" onclick="openMyProfile(this)"><i class="fa-solid fa-user"></i> My Profile</div><div class="admin-info"><b>Admin Access</b><br>Assign, upload, bulk update, export reports, manage tickets and payments.</div></aside><main class="main" id="mainContent"></main></div>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyBdMTgzZGI10Bu3z4dm-ZUSumxN50H7UjE",authDomain:"nandan-rcm.firebaseapp.com",projectId:"nandan-rcm",appId:"1:418121831280:web:8f2eb7228971d0fbe7b5b5",storageBucket:"nandan-rcm.appspot.com"});
-const auth=firebase.auth(),db=firebase.firestore(),storage=firebase.storage(),functionsApi=firebase.functions();
+const auth=firebase.auth(),db=firebase.firestore(),storage=firebase.storage();
 const superAdmins=["vrprasad7@gmail.com","raji202677@gmail.com","nandanrcmsolutions@gmail.com"];
 let selectedStudentId=null,selectedStudentData=null,allStudentsCache=[];
 // Auth gate: hide page until Firebase confirms admin login
@@ -133,16 +133,11 @@ function updateSelectedStudentRows(){
   const count=document.getElementById("selectedStudentCount");
   if(count)count.textContent=selectedStudentRows.length;
 }
-async function resetStudentPassword(uid){
-  if(!confirm("Reset this student's password to NandanRCM?")) return;
-
-  try{
-    const resetFn = functionsApi.httpsCallable("resetStudentPassword");
-    const result = await resetFn({ uid });
-    alert(result.data.message);
-  }catch(error){
-    alert("Reset failed: " + error.message);
-  }
+async function bulkResetSelectedStudentPasswords(){
+  if(!selectedStudentRows.length){alert("Please select at least one student.");return;}
+  if(!confirm("Reset selected student passwords to NandanRCM?"))return;
+  for(const id of selectedStudentRows){await resetStudentPassword(id,false);}
+  alert("Selected student password reset request completed. Default password: NandanRCM");
 }
 async function bulkSetSelectedStatus(status){
   if(!selectedStudentRows.length){alert("Please select at least one student.");return;}
