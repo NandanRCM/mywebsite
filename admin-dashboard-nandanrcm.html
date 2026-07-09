@@ -44,13 +44,18 @@
 
 .search-row{display:grid;grid-template-columns:1fr 145px;gap:12px}.input-box{margin-bottom:12px}.input-box label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.78);margin-bottom:6px}.input-box input,.input-box textarea,.input-box select{width:100%;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(0,10,35,.36);color:#fff;padding:0 12px;outline:none;font-size:13px}.input-box textarea{height:88px;padding:12px;resize:none}.input-box option{background:#000633;color:#fff}.stat-card{height:92px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:15px;padding:14px;display:flex;align-items:center;gap:12px}.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;background:linear-gradient(135deg,#006dff,#00c6ff)}.stat-card h2{font-size:26px;line-height:1;color:#ffb300}.stat-card p{font-size:11.5px;color:rgba(255,255,255,.70);margin-top:4px}.table{width:100%;border-collapse:collapse;margin-top:8px}.table th{text-align:left;color:#00c6ff;font-size:12px;padding:11px;border-bottom:1px solid rgba(255,255,255,.14)}.table td{padding:11px;border-bottom:1px solid rgba(255,255,255,.09);font-size:12px;color:rgba(255,255,255,.84);vertical-align:top}.msg{display:none;padding:10px 13px;border-radius:10px;font-size:12.5px;font-weight:600;margin-bottom:12px}.msg.ok{display:block;background:rgba(0,200,100,.15);border:1px solid rgba(0,200,100,.35);color:#2cff88}.msg.err{display:block;background:rgba(255,60,60,.16);border:1px solid rgba(255,60,60,.35);color:#ff7070}.student-box{display:flex;align-items:center;justify-content:space-between;gap:15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:13px;margin-top:12px}.student-box h3{font-size:15px}.student-box p{font-size:12px;color:rgba(255,255,255,.65)}.feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.feature-box{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:15px;padding:14px}.feature-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.feature-head h3{font-size:14px;color:#fff}.feature-head label{font-size:12px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:7px}.feature-head input{accent-color:#ffb300}.file-row{display:grid;grid-template-columns:1fr 110px;gap:8px}.small-note{font-size:11px;color:rgba(255,255,255,.5);margin-top:8px;line-height:1.5}.profile-card{max-width:620px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:17px;padding:18px;margin-bottom:14px}.admin-list-card{display:flex;justify-content:space-between;align-items:center;gap:12px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;margin-top:10px}.admin-list-card p{font-size:12px;color:rgba(255,255,255,.65)}.mini-btn{height:30px;border:none;border-radius:8px;font-weight:800;cursor:pointer;padding:0 10px;font-size:11px;margin:2px}.mini-btn.gold{background:#ffb300;color:#000633}.mini-btn.blue{background:rgba(0,198,255,.16);border:1px solid rgba(0,198,255,.35);color:#fff}.mini-btn.red{background:rgba(255,60,60,.18);border:1px solid rgba(255,60,60,.35);color:#ffb3b3}.attendance-tools{display:grid;grid-template-columns:1fr 160px 130px;gap:12px}.att-present{color:#2cff88;font-weight:800}.att-absent{color:#ff7070;font-weight:800}.att-unmarked{color:rgba(255,255,255,.45)}
 .student-manager-table-wrap{width:100%;overflow:auto;margin-top:14px;border-radius:14px;border:1px solid rgba(255,255,255,.10)}
-.student-manager-table{min-width:1120px;width:100%;border-collapse:collapse;background:rgba(255,255,255,.035)}
+.student-manager-table{min-width:1280px;width:100%;border-collapse:collapse;background:rgba(255,255,255,.035)}
 .student-manager-table th{text-align:left;color:#00c6ff;font-size:12px;padding:11px;border-bottom:1px solid rgba(255,255,255,.14);white-space:nowrap}
 .student-manager-table td{padding:10px 11px;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px;color:rgba(255,255,255,.84);vertical-align:middle;white-space:nowrap}
 .status-pill{display:inline-flex;align-items:center;justify-content:center;min-width:74px;height:26px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:800}
 .status-pill.active{background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.35);color:#2cff88}
 .status-pill.inactive{background:rgba(255,60,60,.18);border:1px solid rgba(255,60,60,.35);color:#ff9b9b}
-.action-wrap{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:360px}
+.action-wrap{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:230px}
+.icon-action{width:32px;height:32px;border-radius:8px;border:1px solid rgba(0,198,255,.25);background:rgba(255,255,255,.92);color:#39566b;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:.22s;margin:2px}
+.icon-action:hover{transform:translateY(-2px);border-color:#00c6ff;box-shadow:0 8px 18px rgba(0,198,255,.18);color:#00112F}
+.icon-action.red:hover{border-color:#ff7070;box-shadow:0 8px 18px rgba(255,60,60,.18);color:#dc2626}
+.student-check{width:16px;height:16px;accent-color:#ffb300;cursor:pointer}
+.bulk-student-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;padding:10px 12px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(255,255,255,.045)}
 .manager-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
 .manager-summary .stat-card{height:78px}
 @media(max-width:1100px){.manager-summary{grid-template-columns:1fr 1fr}.student-manager-table{min-width:1000px}}
@@ -95,6 +100,40 @@ function formatDateValue(value){
 }
 function getStudentStatus(d){return (d.accountStatus||d.status||"Active").toString();}
 function getStudentName(d){return d.fullName||[d.firstName,d.lastName].filter(Boolean).join(" ")||"Student";}
+let selectedStudentRows=[];
+function toggleAllStudents(source){
+  document.querySelectorAll(".student-check").forEach(cb=>cb.checked=source.checked);
+  updateSelectedStudentRows();
+}
+function updateSelectedStudentRows(){
+  selectedStudentRows=Array.from(document.querySelectorAll(".student-check:checked")).map(cb=>cb.value);
+  const count=document.getElementById("selectedStudentCount");
+  if(count)count.textContent=selectedStudentRows.length;
+}
+async function bulkResetSelectedStudentPasswords(){
+  if(!selectedStudentRows.length){alert("Please select at least one student.");return;}
+  if(!confirm("Reset selected student passwords to NandanRCM?"))return;
+  for(const id of selectedStudentRows){await resetStudentPassword(id,false);}
+  alert("Selected student password reset request completed. Default password: NandanRCM");
+}
+async function bulkSetSelectedStatus(status){
+  if(!selectedStudentRows.length){alert("Please select at least one student.");return;}
+  if(!confirm("Mark selected students as "+status+"?"))return;
+  const batch=db.batch();
+  selectedStudentRows.forEach(id=>batch.set(db.collection("students").doc(id),{accountStatus:status,courseAccess:status==="Active",updatedByAdminAt:new Date().toISOString(),updatedByAdminEmail:auth.currentUser.email||""},{merge:true}));
+  await batch.commit();
+  await loadStudentManagerList();
+  alert("Selected students updated ✅");
+}
+async function bulkDeleteSelectedStudents(){
+  if(!selectedStudentRows.length){alert("Please select at least one student.");return;}
+  if(!confirm("Delete selected Firestore student records? Authentication users need Admin SDK/Cloud Function for deletion."))return;
+  const batch=db.batch();
+  selectedStudentRows.forEach(id=>batch.delete(db.collection("students").doc(id)));
+  await batch.commit();
+  await loadStudentManagerList();
+  alert("Selected student records deleted ✅");
+}
 async function loadStudentManagerList(){
   const area=document.getElementById("studentManagerList");
   if(!area)return;
@@ -106,12 +145,12 @@ async function loadStudentManagerList(){
     if(snap.empty){area.innerHTML=`<p class="small-note">No student records found.</p>`;return;}
     snap.forEach(doc=>{const d=doc.data();const item={id:doc.id,...d};allStudentsCache.push(item);const st=getStudentStatus(d).toLowerCase();if(st==="inactive")inactive++;else active++;if((d.paymentStatus||"Pending")==="Paid")paid++;else pending++;});
     let html=`<div class="manager-summary"><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-users"></i></div><div><h2>${allStudentsCache.length}</h2><p>Total Students</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-user-check"></i></div><div><h2>${active}</h2><p>Active</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-user-xmark"></i></div><div><h2>${inactive}</h2><p>Inactive</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div><div><h2>${paid}</h2><p>Paid</p></div></div></div>`;
-    html+=`<div class="student-manager-table-wrap"><table class="student-manager-table"><thead><tr><th>Full Name</th><th>Email</th><th>Mobile</th><th>Date of Joining</th><th>Courses</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+    html+=`<div class="bulk-student-actions"><b style="font-size:12px;color:#00c6ff;">Selected: <span id="selectedStudentCount">0</span></b><button class="mini-btn blue" onclick="bulkResetSelectedStudentPasswords()"><i class="fa-solid fa-key"></i> Reset to NandanRCM</button><button class="mini-btn gold" onclick="bulkSetSelectedStatus('Active')"><i class="fa-solid fa-user-check"></i> Active</button><button class="mini-btn red" onclick="bulkSetSelectedStatus('Inactive')"><i class="fa-solid fa-user-xmark"></i> Inactive</button><button class="mini-btn red" onclick="bulkDeleteSelectedStudents()"><i class="fa-solid fa-trash"></i> Delete</button></div><div class="student-manager-table-wrap"><table class="student-manager-table"><thead><tr><th><input type="checkbox" class="student-check" onclick="toggleAllStudents(this)"></th><th>Full Name</th><th>Email</th><th>Mobile</th><th>Date of Joining</th><th>Courses</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
     allStudentsCache.forEach(s=>{
       const st=getStudentStatus(s);
       const stClass=st.toLowerCase()==="inactive"?"inactive":"active";
       const courses=s.courseName||s.myCoursesText||s.courseText||s.enrolledCourses||0;
-      html+=`<tr><td>${escapeHTML(getStudentName(s))}</td><td>${escapeHTML(s.email||"-")}</td><td>${escapeHTML(s.phone||s.mobile||"-")}</td><td>${formatDateValue(s.createdAt||s.dateOfJoining||s.joiningDate)}</td><td>${escapeHTML(courses)}</td><td>${escapeHTML(s.paymentStatus||"Pending")}</td><td><span class="status-pill ${stClass}">${stClass==="inactive"?"Inactive":"Active"}</span></td><td><div class="action-wrap"><button class="mini-btn blue" onclick="viewStudentDetails('${s.id}')">View Details</button><button class="mini-btn gold" onclick="changeStudentPassword('${s.id}')">Change Password</button><button class="mini-btn blue" onclick="resetStudentPassword('${s.id}')">Reset Password</button><button class="mini-btn ${stClass==="inactive"?"gold":"red"}" onclick="toggleStudentAccountStatus('${s.id}')">${stClass==="inactive"?"Activate":"Inactive"}</button><button class="mini-btn red" onclick="deleteStudentRecord('${s.id}')">Delete</button></div></td></tr>`;
+      html+=`<tr><td><input type="checkbox" class="student-check" value="${s.id}" onchange="updateSelectedStudentRows()"></td><td>${escapeHTML(getStudentName(s))}</td><td>${escapeHTML(s.email||"-")}</td><td>${escapeHTML(s.phone||s.mobile||"-")}</td><td>${formatDateValue(s.createdAt||s.dateOfJoining||s.joiningDate)}</td><td>${escapeHTML(courses)}</td><td>${escapeHTML(s.paymentStatus||"Pending")}</td><td><span class="status-pill ${stClass}">${stClass==="inactive"?"Inactive":"Active"}</span></td><td><div class="action-wrap"><button class="icon-action" title="View Details" onclick="viewStudentDetails('${s.id}')"><i class="fa-solid fa-eye"></i></button><button class="icon-action" title="Change Password" onclick="changeStudentPassword('${s.id}')"><i class="fa-solid fa-key"></i></button><button class="icon-action" title="Reset Password to NandanRCM" onclick="resetStudentPassword('${s.id}')"><i class="fa-solid fa-rotate-left"></i></button><button class="icon-action" title="${stClass==="inactive"?"Activate Account":"Inactive Account"}" onclick="toggleStudentAccountStatus('${s.id}')"><i class="fa-solid ${stClass==="inactive"?"fa-user-check":"fa-user-xmark"}"></i></button><button class="icon-action red" title="Delete" onclick="deleteStudentRecord('${s.id}')"><i class="fa-solid fa-trash"></i></button></div></td></tr>`;
     });
     html+=`</tbody></table></div>`;
     area.innerHTML=html;
@@ -128,22 +167,36 @@ async function viewStudentDetails(id){
 async function changeStudentPassword(id){
   const student=allStudentsCache.find(s=>s.id===id)||{};
   const email=student.email||"";
-  alert("For security, Firebase web dashboard cannot directly change another user's Authentication password. Use Reset Password to send a Firebase password reset email, or use a secure Cloud Function/Admin SDK for direct password change.");
-  if(email && confirm("Send password reset email to "+email+" now?")){
-    await resetStudentPassword(id);
-  }
+  alert("Directly changing another user password requires Firebase Admin SDK/Cloud Function. Use Reset Password icon to set the default reset request as NandanRCM.");
 }
-async function resetStudentPassword(id){
+async function resetStudentPassword(id,showAlert=true){
   try{
     let student=allStudentsCache.find(s=>s.id===id);
     if(!student){const doc=await db.collection("students").doc(id).get();student={id,...doc.data()};}
     const email=(student.email||"").trim();
-    if(!email){alert("This student does not have an email address.");return;}
-    await auth.sendPasswordResetEmail(email);
-    await db.collection("students").doc(id).set({lastPasswordResetByAdmin:auth.currentUser.email||"",lastPasswordResetAt:new Date().toISOString()},{merge:true});
-    alert("Password reset email sent to "+email+" ✅");
-  }catch(err){alert("Reset password failed: "+err.message);}
+    if(!email){if(showAlert)alert("This student does not have an email address.");return;}
+
+    /*
+      NOTE: Firebase client-side JavaScript cannot directly set another user's
+      Authentication password. This button saves the admin reset request and
+      default password value in Firestore. To update the actual Firebase Auth
+      password to NandanRCM, connect this to a secure Cloud Function/Admin SDK.
+    */
+    await db.collection("students").doc(id).set({
+      passwordResetRequested:true,
+      defaultPassword:"NandanRCM",
+      mustChangePassword:true,
+      lastPasswordResetByAdmin:auth.currentUser.email||"",
+      lastPasswordResetAt:new Date().toISOString(),
+      updatedByAdminAt:new Date().toISOString()
+    },{merge:true});
+
+    if(showAlert){
+      alert("Reset password request saved. Default password: NandanRCM\n\nImportant: To change the actual Firebase Authentication password, use a Cloud Function/Admin SDK.");
+    }
+  }catch(err){if(showAlert)alert("Reset password failed: "+err.message);}
 }
+
 async function toggleStudentAccountStatus(id){
   try{
     let student=allStudentsCache.find(s=>s.id===id);
