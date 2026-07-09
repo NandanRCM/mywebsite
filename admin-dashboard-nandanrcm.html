@@ -87,7 +87,30 @@ function topbar(title,sub){return `<div class="topbar"><div><h1>${title}</h1><p>
 function safe(v){return (v??"").toString().replaceAll('"',"&quot;");}
 function escapeHTML(value){return String(value||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
 async function openOverview(el){setActive(el);document.getElementById("mainContent").innerHTML=`${topbar("Admin Overview","Nandan RCM student portal summary.")}<div class="grid-4"><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-users"></i></div><div><h2 id="totalStudents">0</h2><p>Total Students</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-book-open"></i></div><div><h2 id="totalCourses">0</h2><p>Enrolled Courses</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div><div><h2 id="paidStudents">0</h2><p>Paid Students</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-ticket"></i></div><div><h2 id="openTickets">0</h2><p>Open Tickets</p></div></div></div><div class="card"><h2 class="section-title">Quick Actions</h2><div class="btn-row"><button class="primary-btn" onclick="openStudentManager(document.querySelectorAll('.nav-item')[1])">Find Student</button><button class="secondary-btn" onclick="openBulkUpdate(document.querySelectorAll('.nav-item')[3])">Bulk Update</button><button class="secondary-btn" onclick="openReports(document.querySelectorAll('.nav-item')[4])">Export Reports</button></div></div>`;try{const students=await db.collection("students").get();document.getElementById("totalStudents").textContent=students.size;let courses=0,paid=0;students.forEach(doc=>{const d=doc.data();courses+=Number(d.enrolledCourses||0);if(d.paymentStatus==="Paid"||d.courseAccess===true)paid++;});document.getElementById("totalCourses").textContent=courses;document.getElementById("paidStudents").textContent=paid;const tickets=await db.collection("tickets").where("status","in",["Open","In Progress"]).get().catch(()=>({size:0}));document.getElementById("openTickets").textContent=tickets.size||0;}catch(e){console.log(e.message);}}
-function openStudentManager(el){setActive(el);document.getElementById("mainContent").innerHTML=`${topbar("Student Manager","Search student by email/mobile, view all students, and manage student accounts.")}<div class="card"><h2 class="section-title">Find Student</h2><div id="searchMsg" class="msg"></div><div class="search-row"><div class="input-box"><label>Email or Mobile Number</label><input type="text" id="studentSearch" placeholder="student@email.com or +919490369957"></div><button class="primary-btn" onclick="findStudent()">Search</button></div><div id="studentResult"></div></div><div class="card"><div class="btn-row" style="justify-content:space-between;align-items:center;"><h2 class="section-title" style="margin-bottom:0;">All Student Details</h2><button class="secondary-btn" onclick="loadStudentManagerList()">Refresh List</button></div><div id="studentManagerList" style="margin-top:14px;color:rgba(255,255,255,.6);font-size:13px;">Loading students...</div></div><div id="assignArea"></div>`;loadStudentManagerList();}
+function openStudentManager(el){
+  setActive(el);
+  document.getElementById("mainContent").innerHTML=`${topbar("Student Manager","Search student by email/mobile, view all students, and manage student accounts.")}
+  <div class="card">
+    <h2 class="section-title">Find Student</h2>
+    <div id="searchMsg" class="msg"></div>
+    <div class="search-row">
+      <div class="input-box"><label>Email or Mobile Number</label><input type="text" id="studentSearch" placeholder="student@email.com or +919490369957"></div>
+      <button class="primary-btn" onclick="findStudent()">Search</button>
+    </div>
+    <div id="studentResult"></div>
+  </div>
+  <div class="card">
+    <div class="btn-row" style="justify-content:space-between;align-items:center;">
+      <h2 class="section-title" style="margin-bottom:0;">All Student Details</h2>
+      <button class="secondary-btn" onclick="loadStudentManagerList()">Refresh List</button>
+    </div>
+    <div id="studentManagerList" style="margin-top:14px;color:rgba(255,255,255,.6);font-size:13px;">Loading students...</div>
+  </div>
+  <div id="assignArea"></div>`;
+
+  // Auto-load all students as soon as Student Manager opens
+  setTimeout(loadStudentManagerList,0);
+}
 
 function formatDateValue(value){
   if(!value)return "-";
@@ -102,11 +125,11 @@ function getStudentStatus(d){return (d.accountStatus||d.status||"Active").toStri
 function getStudentName(d){return d.fullName||[d.firstName,d.lastName].filter(Boolean).join(" ")||"Student";}
 let selectedStudentRows=[];
 function toggleAllStudents(source){
-  document.querySelectorAll(".student-check").forEach(cb=>cb.checked=source.checked);
+  document.querySelectorAll(".student-row-check").forEach(cb=>cb.checked=source.checked);
   updateSelectedStudentRows();
 }
 function updateSelectedStudentRows(){
-  selectedStudentRows=Array.from(document.querySelectorAll(".student-check:checked")).map(cb=>cb.value);
+  selectedStudentRows=Array.from(document.querySelectorAll(".student-row-check:checked")).map(cb=>cb.value);
   const count=document.getElementById("selectedStudentCount");
   if(count)count.textContent=selectedStudentRows.length;
 }
@@ -139,22 +162,29 @@ async function loadStudentManagerList(){
   if(!area)return;
   area.innerHTML="Loading students...";
   try{
-    const snap=await db.collection("students").orderBy("createdAt","desc").get().catch(()=>db.collection("students").get());
+    const snap=await db.collection("students").get();
     allStudentsCache=[];
     let active=0,inactive=0,paid=0,pending=0;
     if(snap.empty){area.innerHTML=`<p class="small-note">No student records found.</p>`;return;}
     snap.forEach(doc=>{const d=doc.data();const item={id:doc.id,...d};allStudentsCache.push(item);const st=getStudentStatus(d).toLowerCase();if(st==="inactive")inactive++;else active++;if((d.paymentStatus||"Pending")==="Paid")paid++;else pending++;});
+    allStudentsCache.sort((a,b)=>{
+      const da=new Date(a.createdAt||a.dateOfJoining||a.joiningDate||0).getTime()||0;
+      const dbb=new Date(b.createdAt||b.dateOfJoining||b.joiningDate||0).getTime()||0;
+      return dbb-da;
+    });
     let html=`<div class="manager-summary"><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-users"></i></div><div><h2>${allStudentsCache.length}</h2><p>Total Students</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-user-check"></i></div><div><h2>${active}</h2><p>Active</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-user-xmark"></i></div><div><h2>${inactive}</h2><p>Inactive</p></div></div><div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div><div><h2>${paid}</h2><p>Paid</p></div></div></div>`;
     html+=`<div class="bulk-student-actions"><b style="font-size:12px;color:#00c6ff;">Selected: <span id="selectedStudentCount">0</span></b><button class="mini-btn blue" onclick="bulkResetSelectedStudentPasswords()"><i class="fa-solid fa-key"></i> Reset to NandanRCM</button><button class="mini-btn gold" onclick="bulkSetSelectedStatus('Active')"><i class="fa-solid fa-user-check"></i> Active</button><button class="mini-btn red" onclick="bulkSetSelectedStatus('Inactive')"><i class="fa-solid fa-user-xmark"></i> Inactive</button><button class="mini-btn red" onclick="bulkDeleteSelectedStudents()"><i class="fa-solid fa-trash"></i> Delete</button></div><div class="student-manager-table-wrap"><table class="student-manager-table"><thead><tr><th><input type="checkbox" class="student-check" onclick="toggleAllStudents(this)"></th><th>Full Name</th><th>Email</th><th>Mobile</th><th>Date of Joining</th><th>Courses</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
     allStudentsCache.forEach(s=>{
       const st=getStudentStatus(s);
       const stClass=st.toLowerCase()==="inactive"?"inactive":"active";
       const courses=s.courseName||s.myCoursesText||s.courseText||s.enrolledCourses||0;
-      html+=`<tr><td><input type="checkbox" class="student-check" value="${s.id}" onchange="updateSelectedStudentRows()"></td><td>${escapeHTML(getStudentName(s))}</td><td>${escapeHTML(s.email||"-")}</td><td>${escapeHTML(s.phone||s.mobile||"-")}</td><td>${formatDateValue(s.createdAt||s.dateOfJoining||s.joiningDate)}</td><td>${escapeHTML(courses)}</td><td>${escapeHTML(s.paymentStatus||"Pending")}</td><td><span class="status-pill ${stClass}">${stClass==="inactive"?"Inactive":"Active"}</span></td><td><div class="action-wrap"><button class="icon-action" title="View Details" onclick="viewStudentDetails('${s.id}')"><i class="fa-solid fa-eye"></i></button><button class="icon-action" title="Change Password" onclick="changeStudentPassword('${s.id}')"><i class="fa-solid fa-key"></i></button><button class="icon-action" title="Reset Password to NandanRCM" onclick="resetStudentPassword('${s.id}')"><i class="fa-solid fa-rotate-left"></i></button><button class="icon-action" title="${stClass==="inactive"?"Activate Account":"Inactive Account"}" onclick="toggleStudentAccountStatus('${s.id}')"><i class="fa-solid ${stClass==="inactive"?"fa-user-check":"fa-user-xmark"}"></i></button><button class="icon-action red" title="Delete" onclick="deleteStudentRecord('${s.id}')"><i class="fa-solid fa-trash"></i></button></div></td></tr>`;
+      html+=`<tr><td><input type="checkbox" class="student-row-check" value="${s.id}" onchange="updateSelectedStudentRows()"></td><td>${escapeHTML(getStudentName(s))}</td><td>${escapeHTML(s.email||"-")}</td><td>${escapeHTML(s.phone||s.mobile||"-")}</td><td>${formatDateValue(s.createdAt||s.dateOfJoining||s.joiningDate)}</td><td>${escapeHTML(courses)}</td><td>${escapeHTML(s.paymentStatus||"Pending")}</td><td><span class="status-pill ${stClass}">${stClass==="inactive"?"Inactive":"Active"}</span></td><td><div class="action-wrap"><button class="icon-action" title="View Details" onclick="viewStudentDetails('${s.id}')"><i class="fa-solid fa-eye"></i></button><button class="icon-action" title="Change Password" onclick="changeStudentPassword('${s.id}')"><i class="fa-solid fa-key"></i></button><button class="icon-action" title="Reset Password to NandanRCM" onclick="resetStudentPassword('${s.id}')"><i class="fa-solid fa-rotate-left"></i></button><button class="icon-action" title="${stClass==="inactive"?"Activate Account":"Inactive Account"}" onclick="toggleStudentAccountStatus('${s.id}')"><i class="fa-solid ${stClass==="inactive"?"fa-user-check":"fa-user-xmark"}"></i></button><button class="icon-action red" title="Delete" onclick="deleteStudentRecord('${s.id}')"><i class="fa-solid fa-trash"></i></button></div></td></tr>`;
     });
     html+=`</tbody></table></div>`;
     area.innerHTML=html;
-  }catch(err){area.innerHTML=`<p style="color:#ff7070;">${escapeHTML(err.message)}</p>`;}
+  }catch(err){
+    area.innerHTML=`<p style="color:#ff7070;">${escapeHTML(err.message)}</p><p class="small-note">If this shows permission denied, update Firestore rules to allow admins to read the students collection.</p>`;
+  }
 }
 async function viewStudentDetails(id){
   const doc=await db.collection("students").doc(id).get();
